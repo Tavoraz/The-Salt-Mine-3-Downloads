@@ -8,6 +8,13 @@ Open the Windows setup and choose **Install**. Open the game, choose a hero and 
 
 If the launcher asks you to update, choose **Update & play**. If setup or an update stalls, use the current installer above and report the step in the [itch.io devlog comments](https://tavoraz.itch.io/the-salt-mine-3/devlog/1763006/v079-your-first-battleground-is-one-step-closer).
 
+## Play, bring a friend, or follow along
+
+- [Play Cart Run in your browser](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/) — a 30-second solo mini-game inspired by Push the Cart. No install.
+- [Plan a match with friends](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html) — pick a mode, share an optional local time, and find the steps to group up in Saltwake.
+- [Follow release notes via RSS](https://tavoraz.itch.io/the-salt-mine-3/devlog.rss) — add the feed to your reader for updates.
+- [Send first-match feedback](https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/issues/new/choose) — tell us where you got stuck or what would bring you back. Reports are public and require a GitHub account.
+
 ## Creator and press resources
 
 **One-line description** — The Salt Mine 3 is a free Windows fantasy battler with nine heroes, three objective modes, and a group dungeon between battles.

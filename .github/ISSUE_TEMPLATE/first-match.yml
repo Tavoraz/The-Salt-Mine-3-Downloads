@@ -1,0 +1,37 @@
+name: First match feedback
+description: Tell us what happened when you first installed or played The Salt Mine 3.
+title: "[First match] "
+body:
+  - type: markdown
+    attributes:
+      value: This report is public. Leave out account names, email addresses, IP addresses, and private logs.
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where were you?
+      options:
+        - Downloading the installer
+        - Installing or updating
+        - Opening the game
+        - Joining a friend or a match
+        - Playing my first match
+        - After the match
+    validations:
+      required: true
+  - type: textarea
+    id: experience
+    attributes:
+      label: What happened?
+      description: A few words are enough. For a blocker, tell us what you clicked and what you expected to happen.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Game version (if you saw it)
+      placeholder: "Example: 0.79.0"
+  - type: textarea
+    id: next
+    attributes:
+      label: What would make you want another match?
+      description: Optional. Tell us one thing you would keep or change.

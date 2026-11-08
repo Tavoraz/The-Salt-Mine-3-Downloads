@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Pick a battleground and make a plan to play The Salt Mine 3 with a friend.">
+  <title>Play together · The Salt Mine 3</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --slate: #111820;
+      --surface: #19232d;
+      --line: #34414c;
+      --ink: #f5f0e6;
+      --quiet: #bcc7ce;
+      --gold: #e8c785;
+      font: 16px/1.55 system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--slate); }
+    a { color: var(--gold); text-underline-offset: .22em; }
+    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid #ffe2a5; outline-offset: 4px;
+    }
+    .band {
+      background: linear-gradient(120deg, #202d39, #101820 67%);
+      border-bottom: 1px solid var(--line);
+    }
+    .wrap { width: min(100% - 2.5rem, 58rem); margin-inline: auto; }
+    header .wrap { padding-block: 2.25rem 2.5rem; position: relative; overflow: hidden; }
+    .brand {
+      color: var(--gold); font-weight: 700; text-decoration: none; text-transform: uppercase;
+      letter-spacing: .12em; font-size: .78rem; display: inline-flex; min-height: 44px; align-items: center;
+    }
+    h1, h2 { font-family: Georgia, serif; line-height: 1.08; font-weight: 500; }
+    h1 { font-size: clamp(2.75rem, 8vw, 5rem); margin: .2rem 0 .65rem; }
+    header p { margin: 0; color: var(--quiet); max-width: 37ch; }
+    .mark { position: absolute; width: min(27vw, 14rem); top: 1rem; right: 1rem; opacity: .34; pointer-events: none; }
+    main { display: grid; grid-template-columns: 1.28fr 1fr; gap: 2.5rem; padding-block: 2rem 3rem; }
+    fieldset { border: 0; padding: 0; margin: 0 0 1.5rem; min-width: 0; }
+    legend, .time-label { display: block; font-weight: 700; margin-bottom: .65rem; }
+    .mode {
+      display: grid; grid-template-columns: auto minmax(0, 1fr);
+      align-items: center; gap: .85rem; cursor: pointer; min-height: 62px;
+      padding: .65rem .75rem; border-block-start: 1px solid var(--line);
+      transition: background-color 140ms ease;
+    }
+    .mode:last-child { border-block-end: 1px solid var(--line); }
+    .mode:has(input:checked) { background: #242c32; }
+    .mode:hover { background: var(--surface); }
+    input[type="radio"] { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--gold); }
+    .mode strong { display: block; font-size: 1rem; }
+    .mode small, .muted, .hint { color: var(--quiet); font-size: .9rem; }
+    .hint { margin: .55rem 0 0; }
+    .optional { font-weight: 400; color: var(--quiet); }
+    input[type="datetime-local"], textarea {
+      display: block; width: 100%; max-width: 100%; min-width: 0; min-height: 46px;
+      border: 1px solid #536270; border-radius: .32rem; background: var(--surface);
+      color: var(--ink); font: inherit; padding: .6rem .7rem;
+    }
+    textarea { margin-top: .75rem; resize: vertical; overflow-wrap: anywhere; }
+    aside { align-self: start; border-inline-start: 1px solid var(--line); padding-inline-start: 2rem; }
+    .section-label { font-size: .73rem; color: var(--gold); text-transform: uppercase; letter-spacing: .15em; font-weight: 700; margin: 0 0 .6rem; }
+    h2 { font-size: 2rem; margin: 0; }
+    .plan-time { margin: .45rem 0 1rem; color: var(--quiet); overflow-wrap: anywhere; }
+    .actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+    button, .download {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: .65rem .95rem; border-radius: .32rem;
+      border: 1px solid var(--gold); color: #17191c; background: var(--gold);
+      font: 700 .9rem/1.3 system-ui, sans-serif; text-align: center; text-decoration: none;
+      transition: background-color 140ms ease, border-color 140ms ease; cursor: pointer;
+    }
+    button:hover, .download:hover { background: #f8db9d; border-color: #f8db9d; }
+    button.secondary { color: var(--ink); background: transparent; border-color: #63727f; }
+    button.secondary:hover { background: var(--surface); border-color: var(--gold); }
+    .status { min-height: 1.5em; margin: .55rem 0 .15rem; color: var(--gold); font-size: .86rem; }
+    .join { padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--line); }
+    .join p { margin: 0 0 .85rem; font-size: .9rem; color: var(--quiet); }
+    .join strong { color: var(--ink); }
+    .download { color: var(--ink); background: transparent; border-color: #63727f; }
+    .download:hover { color: #17191c; }
+    .footer { border-top: 1px solid var(--line); color: var(--quiet); padding: 1.15rem 0; font-size: .85rem; }
+    [hidden] { display: none !important; }
+    @media (max-width: 680px) {
+      main { grid-template-columns: 1fr; gap: 1.75rem; padding-block: 1.6rem 2.3rem; }
+      aside { padding: 1.45rem 0 0; border-inline-start: 0; border-block-start: 1px solid var(--line); }
+      header .wrap { padding-block: 1.5rem 1.75rem; }
+      .mark { top: 1.65rem; right: 0; opacity: .24; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="band">
+    <div class="wrap">
+      <a class="brand" href="https://avoraz.com/">The Salt Mine 3</a>
+      <h1>Play together</h1>
+      <p>Pick a battleground, choose a time if you like, and send the plan to a friend.</p>
+      <svg class="mark" viewBox="0 0 210 158" fill="none" aria-hidden="true">
+        <g stroke="#e8c785" stroke-width="1.4">
+          <path d="m102 8 37 37-12 72-26 28-31-32-9-68 41-37Zm0 0-8 61 7 76m-40-100 33 24 45-24m-69 68 24-44 33 48M44 112l-12-29 17-14 13 21m84 21 18-37 15 13-15 31"/>
+          <path d="M33 128h146m-109 10h69" opacity=".6"/>
+        </g>
+      </svg>
+    </div>
+  </header>
+  <main class="wrap">
+    <section aria-label="Match options">
+      <fieldset>
+        <legend>Choose a battleground</legend>
+        <label class="mode"><input type="radio" name="mode" value="cart" checked>
+          <span><strong>Push the Cart</strong><small>Win the fight around the cart and push it to your lift.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="capture">
+          <span><strong>Capture the Salt</strong><small>Steal the enemy’s Salt and get it home.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="war">
+          <span><strong>War for the Vein</strong><small>Take outposts and push toward the enemy fortress.</small></span></label>
+      </fieldset>
+      <label class="time-label" for="when">When <span class="optional">(optional)</span></label>
+      <input type="datetime-local" id="when" aria-describedby="timezone">
+      <p id="timezone" class="hint">Times appear in each player’s local time zone.</p>
+    </section>
+    <aside aria-labelledby="plan-mode">
+      <p class="section-label">Your plan</p>
+      <h2 id="plan-mode">Push the Cart</h2>
+      <p class="plan-time" id="plan-time">Whenever you’re ready</p>
+      <div class="actions" id="share-controls" hidden>
+        <button type="button" id="share">Copy invite link</button>
+        <button type="button" class="secondary" id="calendar" hidden>Save calendar event</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <label id="manual-label" class="muted" for="manual" hidden>Copy this to share your plan</label>
+      <textarea id="manual" rows="4" readonly hidden></textarea>
+      <div class="join">
+        <p><strong>Meet in Saltwake.</strong> Both players open Battlegrounds. One selects <strong>Form a group</strong> and the other joins by their in-game name. Queue for your mode, then both accept <strong>Ready for Battle</strong>.</p>
+        <a class="download" href="https://avoraz.com/download">Download free for Windows</a>
+      </div>
+      <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
+    </aside>
+  </main>
+  <footer class="footer"><div class="wrap">Free online alpha for Windows · <a href="https://avoraz.com/">An Avoraz game</a></div></footer>
+  <script>
+    "use strict";
+    const modes = new Map([
+      ["cart", "Push the Cart"],
+      ["capture", "Capture the Salt"],
+      ["war", "War for the Vein"]
+    ]);
+    const modeInputs = Array.from(document.querySelectorAll('input[name="mode"]'));
+    const when = document.getElementById("when");
+    const title = document.getElementById("plan-mode");
+    const time = document.getElementById("plan-time");
+    const timezone = document.getElementById("timezone");
+    const share = document.getElementById("share");
+    const calendar = document.getElementById("calendar");
+    const status = document.getElementById("status");
+    const manualLabel = document.getElementById("manual-label");
+    const manual = document.getElementById("manual");
+    const localHost = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"].includes(location.hostname);
+    const shareable = /^https?:$/.test(location.protocol) && !localHost;
+    const formatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+
+    let receivedTime = null;
+
+    function localValue(date) {
+      const pad = value => String(value).padStart(2, "0");
+      return String(date.getFullYear()).padStart(4, "0") + "-" + pad(date.getMonth() + 1) + "-" +
+        pad(date.getDate()) + "T" + pad(date.getHours()) + ":" + pad(date.getMinutes());
+    }
+
+    function readPlan() {
+      const query = new URLSearchParams(location.hash.slice(1));
+      const mode = query.get("mode");
+      const date = query.get("at");
+      const validMode = query.getAll("mode").length === 1 && modes.has(mode);
+      modeInputs.find(input => input.value === (validMode ? mode : "cart")).checked = true;
+      const parsed = date && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00\.000Z$/.test(date) ? new Date(date) : null;
+      receivedTime = query.getAll("at").length === 1 && parsed && Number.isFinite(parsed.getTime()) &&
+        parsed.toISOString() === date ? parsed : null;
+      when.value = receivedTime ? localValue(receivedTime) : "";
+      render();
+    }
+
+    function selectedPlan() {
+      const mode = modeInputs.find(input => input.checked).value;
+      const exactReceivedTime = receivedTime && localValue(receivedTime) === when.value;
+      const date = exactReceivedTime ? receivedTime : when.value ? new Date(when.value) : null;
+      const validDate = date && Number.isFinite(date.getTime()) &&
+        date.getFullYear() >= 2020 && date.getFullYear() < 9999 && localValue(date) === when.value;
+      return { mode, date: validDate ? date : null };
+    }
+
+    function render() {
+      const plan = selectedPlan();
+      const invalidTime = Boolean(when.value && !plan.date);
+      when.setCustomValidity(invalidTime ? "Choose a valid local date and time." : "");
+      title.textContent = modes.get(plan.mode);
+      time.textContent = plan.date ? formatter.format(plan.date) + " · local time" : "Whenever you’re ready";
+      calendar.hidden = !plan.date;
+      share.disabled = invalidTime;
+      status.textContent = invalidTime ? "Choose a valid local date and time." : "";
+      manualLabel.hidden = true;
+      manual.hidden = true;
+      return plan;
+    }
+
+    function planHash(plan) {
+      const query = new URLSearchParams({ mode: plan.mode });
+      if (plan.date) query.set("at", plan.date.toISOString());
+      return "#" + query.toString();
+    }
+
+    function sync() {
+      const plan = render();
+      if (when.validity.valid) history.replaceState(null, "", planHash(plan));
+    }
+
+    async function copyInvite() {
+      const plan = selectedPlan();
+      const scheduled = plan.date ? " on " + plan.date.toLocaleString(undefined, {
+        dateStyle: "medium", timeStyle: "short"
+      }) + " (" + formatter.resolvedOptions().timeZone + ")" : "";
+      const url = new URL(location.href);
+      url.search = "";
+      url.hash = planHash(plan);
+      const invitation = shareable ? url.href :
+        "Play The Salt Mine 3 with me. Let’s try " + modes.get(plan.mode) + scheduled +
+        ". Meet in Saltwake. Download free for Windows at https://avoraz.com/download";
+      try {
+        await navigator.clipboard.writeText(invitation);
+        status.textContent = shareable ? "Invite link copied." : "Invite text copied.";
+      } catch {
+        manualLabel.hidden = false;
+        manual.hidden = false;
+        manual.value = invitation;
+        manual.focus();
+        manual.select();
+        status.textContent = "Copy the selected invitation.";
+      }
+    }
+
+    function saveCalendar() {
+      const plan = selectedPlan();
+      if (!plan.date) return;
+      const stamp = date => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+      const start = stamp(plan.date);
+      const event = [
+        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Avoraz//Play Together//EN",
+        "BEGIN:VEVENT", "UID:" + start + "-" + plan.mode + "@avoraz.com",
+        "DTSTAMP:" + stamp(new Date()), "DTSTART:" + start,
+        "DTEND:" + stamp(new Date(plan.date.getTime() + 30 * 60 * 1000)),
+        "SUMMARY:The Salt Mine 3 - " + modes.get(plan.mode),
+        "DESCRIPTION:Meet in Saltwake. Download: https://avoraz.com/download",
+        "END:VEVENT", "END:VCALENDAR", ""
+      ].join("\r\n");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([event], { type: "text/calendar;charset=utf-8" }));
+      link.download = "salt-mine-3-match.ics";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      status.textContent = "Calendar file ready. Open it to add the plan.";
+    }
+
+    timezone.textContent = "Shown in " + formatter.resolvedOptions().timeZone +
+      ". Your friend sees the same time in their own time zone.";
+    if (!shareable) share.textContent = "Copy invite text";
+    document.getElementById("share-controls").hidden = false;
+    readPlan();
+    for (const input of modeInputs) input.addEventListener("change", sync);
+    when.addEventListener("input", () => {
+      receivedTime = null;
+      sync();
+    });
+    share.addEventListener("click", copyInvite);
+    calendar.addEventListener("click", saveCalendar);
+    window.addEventListener("hashchange", readPlan);
+  </script>
+</body>
+</html>

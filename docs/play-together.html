@@ -196,6 +196,7 @@
     const canShare = typeof navigator.share === "function";
     const formatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
 
+    const playWindowMs = 30 * 60 * 1000;
     let receivedTime = null;
 
     function localValue(date) {
@@ -221,6 +222,7 @@
 
     function showRecipientPlan(isRecipient, date = null) {
       if (!isRecipient) intro.textContent = senderIntro;
+      else if (hasEnded(date)) intro.textContent = "That play window ended. You can still play now or share a fresh invite with a friend.";
       else if (date) intro.textContent = "The start time is shown in your local time zone.";
       else intro.textContent = "Join whenever you’re both ready.";
       if (planner.classList.contains("invite-recipient") === isRecipient) return;
@@ -255,14 +257,19 @@
       return { mode, date: validDate ? date : null };
     }
 
+    function hasEnded(date) {
+      return Boolean(date && Date.now() >= date.getTime() + playWindowMs);
+    }
+
     function render() {
       const plan = selectedPlan();
       const invalidTime = Boolean(when.value && !plan.date);
       when.setCustomValidity(invalidTime ? "Choose a valid local date and time." : "");
       title.textContent = modes.get(plan.mode);
       soloMode.textContent = title.textContent;
-      time.textContent = plan.date ? formatter.format(plan.date) + " · local time" : "Whenever you’re ready";
-      calendar.hidden = !plan.date;
+      const ended = hasEnded(plan.date);
+      time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
+      calendar.hidden = !plan.date || ended;
       share.disabled = invalidTime;
       status.textContent = invalidTime ? "Choose a valid local date and time." : "";
       manualLabel.hidden = true;
@@ -279,7 +286,7 @@
     function inviteUrl(plan) {
       const url = new URL(location.href);
       url.search = "";
-      url.hash = planHash(plan);
+      url.hash = planHash(hasEnded(plan.date) ? { mode: plan.mode, date: null } : plan);
       return url.href;
     }
 
@@ -291,7 +298,7 @@
 
     async function copyInvite() {
       const plan = selectedPlan();
-      const scheduled = plan.date ? " on " + plan.date.toLocaleString(undefined, {
+      const scheduled = plan.date && !hasEnded(plan.date) ? " on " + plan.date.toLocaleString(undefined, {
         dateStyle: "medium", timeStyle: "short"
       }) + " (" + formatter.resolvedOptions().timeZone + ")" : "";
       const invitation = shareable ? inviteUrl(plan) :
@@ -332,14 +339,14 @@
 
     function saveCalendar() {
       const plan = selectedPlan();
-      if (!plan.date) return;
+      if (!plan.date || hasEnded(plan.date)) return;
       const stamp = date => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
       const start = stamp(plan.date);
       const event = [
         "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Avoraz//Play Together//EN",
         "BEGIN:VEVENT", "UID:" + start + "-" + plan.mode + "@avoraz.com",
         "DTSTAMP:" + stamp(new Date()), "DTSTART:" + start,
-        "DTEND:" + stamp(new Date(plan.date.getTime() + 30 * 60 * 1000)),
+        "DTEND:" + stamp(new Date(plan.date.getTime() + playWindowMs)),
         "SUMMARY:The Salt Mine 3 - " + modes.get(plan.mode),
         "DESCRIPTION:Meet in Saltwake. Download: https://avoraz.com/download"
       ];

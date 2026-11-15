@@ -62,6 +62,7 @@
     }
     textarea { margin-top: .75rem; resize: vertical; overflow-wrap: anywhere; }
     aside { align-self: start; border-inline-start: 1px solid var(--line); padding-inline-start: 2rem; }
+    .invite-recipient > aside { border-inline-start: 0; border-inline-end: 1px solid var(--line); padding-inline: 0 2rem; }
     .section-label { font-size: .73rem; color: var(--gold); text-transform: uppercase; letter-spacing: .15em; font-weight: 700; margin: 0 0 .6rem; }
     h2 { font-size: 2rem; margin: 0; }
     .plan-time { margin: .45rem 0 1rem; color: var(--quiet); overflow-wrap: anywhere; }
@@ -82,11 +83,16 @@
     .join strong { color: var(--ink); }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
+    #recipient-steps .download { color: #17191c; background: var(--gold); border-color: var(--gold); }
+    #recipient-steps .download:hover { background: #f8db9d; border-color: #f8db9d; }
+    #solo-steps { margin: .8rem 0 1rem; font-size: .9rem; color: var(--quiet); }
+    #solo-steps strong { color: var(--ink); }
     .footer { border-top: 1px solid var(--line); color: var(--quiet); padding: 1.15rem 0; font-size: .85rem; }
     [hidden] { display: none !important; }
     @media (max-width: 680px) {
       main { grid-template-columns: 1fr; gap: 1.75rem; padding-block: 1.6rem 2.3rem; }
       aside { padding: 1.45rem 0 0; border-inline-start: 0; border-block-start: 1px solid var(--line); }
+      .invite-recipient > aside { border: 0; padding: 0; }
       header .wrap { padding-block: 1.5rem 1.75rem; }
       .mark { top: 1.65rem; right: 0; opacity: .24; }
     }
@@ -100,7 +106,7 @@
     <div class="wrap">
       <a class="brand" href="https://avoraz.com/">The Salt Mine 3</a>
       <h1>Play together</h1>
-      <p>Pick a battleground, choose a time if you like, and send the plan to a friend.</p>
+      <p id="planner-intro">Pick a battleground, choose a time if you like, and send the plan to a friend.</p>
       <svg class="mark" viewBox="0 0 210 158" fill="none" aria-hidden="true">
         <g stroke="#e8c785" stroke-width="1.4">
           <path d="m102 8 37 37-12 72-26 28-31-32-9-68 41-37Zm0 0-8 61 7 76m-40-100 33 24 45-24m-69 68 24-44 33 48M44 112l-12-29 17-14 13 21m84 21 18-37 15 13-15 31"/>
@@ -109,7 +115,7 @@
       </svg>
     </div>
   </header>
-  <main class="wrap">
+  <main id="planner" class="wrap">
     <section aria-label="Match options">
       <fieldset>
         <legend>Choose a battleground</legend>
@@ -124,10 +130,13 @@
       <input type="datetime-local" id="when" aria-describedby="timezone">
       <p id="timezone" class="hint">Times appear in each player’s local time zone.</p>
     </section>
-    <aside aria-labelledby="plan-mode">
-      <p class="section-label">Your plan</p>
+    <aside id="plan-summary" aria-labelledby="plan-mode">
+      <p id="plan-label" class="section-label">Your plan</p>
       <h2 id="plan-mode">Push the Cart</h2>
       <p class="plan-time" id="plan-time">Whenever you’re ready</p>
+      <div id="recipient-steps" hidden>
+        <p id="solo-steps"><strong>Playing solo?</strong> Pick a hero, select <strong>Quick battleground</strong>, choose <strong id="solo-mode">Push the Cart</strong>, then select <strong>Join battleground</strong> and accept <strong>Ready for Battle</strong>. AI heroes fill empty slots.</p>
+      </div>
       <div class="actions" id="share-controls" hidden>
         <button type="button" id="share">Copy invite link</button>
         <button type="button" class="secondary" id="calendar" hidden>Save calendar event</button>
@@ -135,9 +144,9 @@
       <p class="status" id="status" role="status"></p>
       <label id="manual-label" class="muted" for="manual" hidden>Copy this to share your plan</label>
       <textarea id="manual" rows="4" readonly hidden></textarea>
-      <div class="join">
+      <div id="group-steps" class="join">
         <p><strong>Meet in Saltwake.</strong> Both players open Battlegrounds. One selects <strong>Form a group</strong> and the other joins by their in-game name. Queue for your mode, then both accept <strong>Ready for Battle</strong>.</p>
-        <a class="download" href="https://avoraz.com/download">Download free for Windows</a>
+        <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
     </aside>
@@ -151,6 +160,15 @@
       ["war", "War for the Vein"]
     ]);
     const modeInputs = Array.from(document.querySelectorAll('input[name="mode"]'));
+    const planner = document.getElementById("planner");
+    const intro = document.getElementById("planner-intro");
+    const senderIntro = intro.textContent;
+    const summary = document.getElementById("plan-summary");
+    const label = document.getElementById("plan-label");
+    const recipientSteps = document.getElementById("recipient-steps");
+    const soloMode = document.getElementById("solo-mode");
+    const groupSteps = document.getElementById("group-steps");
+    const downloadLink = document.getElementById("download");
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
     const time = document.getElementById("plan-time");
@@ -182,7 +200,24 @@
       receivedTime = query.getAll("at").length === 1 && parsed && Number.isFinite(parsed.getTime()) &&
         parsed.toISOString() === date ? parsed : null;
       when.value = receivedTime ? localValue(receivedTime) : "";
-      render();
+      const plan = render();
+      showRecipientPlan(validMode && plan.date !== null);
+    }
+
+    function showRecipientPlan(isRecipient) {
+      if (planner.classList.contains("invite-recipient") === isRecipient) return;
+      planner.classList.toggle("invite-recipient", isRecipient);
+      recipientSteps.hidden = !isRecipient;
+      share.classList.toggle("secondary", isRecipient);
+      label.textContent = isRecipient ? "Shared plan" : "Your plan";
+      intro.textContent = isRecipient ? "The start time is shown in your local time zone." : senderIntro;
+      if (isRecipient) {
+        planner.prepend(summary);
+        recipientSteps.prepend(downloadLink);
+      } else {
+        planner.append(summary);
+        groupSteps.append(downloadLink);
+      }
     }
 
     function selectedPlan() {
@@ -199,6 +234,7 @@
       const invalidTime = Boolean(when.value && !plan.date);
       when.setCustomValidity(invalidTime ? "Choose a valid local date and time." : "");
       title.textContent = modes.get(plan.mode);
+      soloMode.textContent = title.textContent;
       time.textContent = plan.date ? formatter.format(plan.date) + " · local time" : "Whenever you’re ready";
       calendar.hidden = !plan.date;
       share.disabled = invalidTime;
@@ -215,6 +251,7 @@
     }
 
     function sync() {
+      showRecipientPlan(false);
       const plan = render();
       if (when.validity.valid) history.replaceState(null, "", planHash(plan));
     }

@@ -3,6 +3,7 @@
 const canvas = document.querySelector('#mine');
 const ctx = canvas.getContext('2d');
 const startButton = document.querySelector('#start-btn');
+const winDownload = document.querySelector('#win-download');
 const overlay = document.querySelector('#overlay');
 const headline = document.querySelector('#headline');
 const hint = document.querySelector('#hint');
@@ -35,6 +36,8 @@ function begin() {
   state = fresh('playing');
   keys.clear();
   overlay.hidden = true;
+  winDownload.hidden = true;
+  overlay.classList.remove('is-victory');
   canvas.focus({ preventScroll: true });
   status.textContent = 'Stay close to the cart. Knock defenders away when they get near.';
   render();
@@ -46,9 +49,11 @@ function finish(won) {
   const progress = Math.floor((state.cart - startCart) / (goal - startCart) * 100);
   headline.textContent = won ? 'Salt delivered!' : 'The cart stopped.';
   hint.textContent = won
-    ? 'Try the full Push the Cart battleground with a friend.'
+    ? 'Bring a friend into Push the Cart.'
     : `You pushed the cart ${progress}% of the way. Stay near it and save your knockback for close defenders.`;
   startButton.textContent = 'Play again';
+  winDownload.hidden = !won;
+  overlay.classList.toggle('is-victory', won);
   overlay.hidden = false;
   status.textContent = won ? 'You delivered the cart.' : 'Round ended. Ready for another run.';
   startButton.focus();

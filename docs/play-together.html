@@ -80,13 +80,12 @@
     .status { min-height: 1.5em; margin: .55rem 0 .15rem; color: var(--gold); font-size: .86rem; }
     .join { padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--line); }
     .join p { margin: 0 0 .85rem; font-size: .9rem; color: var(--quiet); }
-    .join strong { color: var(--ink); }
+    #group-instructions strong, #solo-steps strong { color: var(--ink); }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
     #recipient-steps .download { color: #17191c; background: var(--gold); border-color: var(--gold); }
     #recipient-steps .download:hover { background: #f8db9d; border-color: #f8db9d; }
-    #solo-steps { margin: .8rem 0 1rem; font-size: .9rem; color: var(--quiet); }
-    #solo-steps strong { color: var(--ink); }
+    #recipient-steps p { margin: .8rem 0 1rem; font-size: .9rem; color: var(--quiet); }
     .footer { border-top: 1px solid var(--line); color: var(--quiet); padding: 1.15rem 0; font-size: .85rem; }
     [hidden] { display: none !important; }
     @media (max-width: 680px) {
@@ -135,7 +134,7 @@
       <h2 id="plan-mode">Push the Cart</h2>
       <p class="plan-time" id="plan-time">Whenever you’re ready</p>
       <div id="recipient-steps" hidden>
-        <p id="solo-steps"><strong>Playing solo?</strong> Pick a hero, select <strong>Quick battleground</strong>, choose <strong id="solo-mode">Push the Cart</strong>, then select <strong>Join battleground</strong> and accept <strong>Ready for Battle</strong>. AI heroes fill empty slots.</p>
+        <p id="solo-steps"><strong>Prefer a solo round?</strong> Pick a hero, select <strong>Quick battleground</strong>, then choose <strong id="solo-mode">Push the Cart</strong>. Join, accept the ready check and <strong>Lock in</strong> when the lobby opens. AI heroes fill empty slots.</p>
       </div>
       <div class="actions" id="share-controls" hidden>
         <button type="button" id="share">Copy invite link</button>
@@ -145,7 +144,7 @@
       <label id="manual-label" class="muted" for="manual" hidden>Copy this to share your plan</label>
       <textarea id="manual" rows="4" readonly hidden></textarea>
       <div id="group-steps" class="join">
-        <p><strong>Meet in Saltwake.</strong> Both players open Battlegrounds. One selects <strong>Form a group</strong> and the other joins by their in-game name. Queue for your mode, then both accept <strong>Ready for Battle</strong>.</p>
+        <p id="group-instructions"><strong>Meet by Battlemaster Rook in Saltwake.</strong> Choose <strong>Enter World</strong>. Looking for company? Press <kbd>Enter</kbd> and ask in town chat before joining a match. Press <kbd>F</kbd> near Rook to open Battlegrounds. One person selects <strong>Form a group</strong> and the others join by that player’s in-game name. The leader chooses the mode above and selects <strong>Join battleground</strong>. Everyone accepts the ready check, then chooses <strong>Lock in</strong> when the lobby opens.</p>
         <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
@@ -166,8 +165,10 @@
     const summary = document.getElementById("plan-summary");
     const label = document.getElementById("plan-label");
     const recipientSteps = document.getElementById("recipient-steps");
+    const soloSteps = document.getElementById("solo-steps");
     const soloMode = document.getElementById("solo-mode");
     const groupSteps = document.getElementById("group-steps");
+    const groupInstructions = document.getElementById("group-instructions");
     const downloadLink = document.getElementById("download");
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
@@ -211,13 +212,16 @@
       if (planner.classList.contains("invite-recipient") === isRecipient) return;
       planner.classList.toggle("invite-recipient", isRecipient);
       recipientSteps.hidden = !isRecipient;
+      groupSteps.hidden = isRecipient;
       share.classList.toggle("secondary", isRecipient);
       label.textContent = isRecipient ? "Shared plan" : "Your plan";
       if (isRecipient) {
         planner.prepend(summary);
         recipientSteps.prepend(downloadLink);
+        recipientSteps.insertBefore(groupInstructions, soloSteps);
       } else {
         planner.append(summary);
+        groupSteps.prepend(groupInstructions);
         groupSteps.append(downloadLink);
       }
     }

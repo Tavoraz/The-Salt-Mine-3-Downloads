@@ -205,7 +205,8 @@
     }
 
     function readPlan() {
-      const query = new URLSearchParams(location.hash.slice(1));
+      // Steam Community may escape the ampersand in links inside event comments.
+      const query = new URLSearchParams(location.hash.slice(1).replaceAll("&amp;", "&"));
       const mode = query.get("mode");
       const date = query.get("at");
       const validMode = query.getAll("mode").length === 1 && modes.has(mode);

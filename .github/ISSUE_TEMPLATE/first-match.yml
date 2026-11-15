@@ -13,6 +13,7 @@ body:
         - Downloading the installer
         - Installing or updating
         - Opening the game
+        - Choosing a hero or entering Saltwake
         - Joining a friend or a match
         - Playing my first match
         - After the match
@@ -30,6 +31,11 @@ body:
     attributes:
       label: Game version (if you saw it)
       placeholder: "Example: 0.79.0"
+  - type: input
+    id: crash-details
+    attributes:
+      label: Windows crash details (optional)
+      description: If the game window closed, open View reliability history in the Windows Start menu. If it lists a SaltMine3 failure, share the faulting module name, exception code and time. Keep file paths and logs private.
   - type: textarea
     id: next
     attributes:

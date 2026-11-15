@@ -201,16 +201,18 @@
         parsed.toISOString() === date ? parsed : null;
       when.value = receivedTime ? localValue(receivedTime) : "";
       const plan = render();
-      showRecipientPlan(validMode && plan.date !== null);
+      showRecipientPlan(validMode && (!query.has("at") || plan.date !== null), plan.date);
     }
 
-    function showRecipientPlan(isRecipient) {
+    function showRecipientPlan(isRecipient, date = null) {
+      if (!isRecipient) intro.textContent = senderIntro;
+      else if (date) intro.textContent = "The start time is shown in your local time zone.";
+      else intro.textContent = "Join whenever you’re both ready.";
       if (planner.classList.contains("invite-recipient") === isRecipient) return;
       planner.classList.toggle("invite-recipient", isRecipient);
       recipientSteps.hidden = !isRecipient;
       share.classList.toggle("secondary", isRecipient);
       label.textContent = isRecipient ? "Shared plan" : "Your plan";
-      intro.textContent = isRecipient ? "The start time is shown in your local time zone." : senderIntro;
       if (isRecipient) {
         planner.prepend(summary);
         recipientSteps.prepend(downloadLink);

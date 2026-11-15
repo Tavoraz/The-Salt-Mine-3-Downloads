@@ -83,8 +83,8 @@
     #group-instructions strong, #solo-steps strong { color: var(--ink); }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
-    #recipient-steps .download { color: #17191c; background: var(--gold); border-color: var(--gold); }
-    #recipient-steps .download:hover { background: #f8db9d; border-color: #f8db9d; }
+    #recipient-steps .download:not(.secondary) { color: #17191c; background: var(--gold); border-color: var(--gold); }
+    #recipient-steps .download:not(.secondary):hover { background: #f8db9d; border-color: #f8db9d; }
     #recipient-steps p { margin: .8rem 0 1rem; font-size: .9rem; color: var(--quiet); }
     .footer { border-top: 1px solid var(--line); color: var(--quiet); padding: 1.15rem 0; font-size: .85rem; }
     [hidden] { display: none !important; }
@@ -134,15 +134,20 @@
       <h2 id="plan-mode">Push the Cart</h2>
       <p class="plan-time" id="plan-time">Whenever you’re ready</p>
       <div id="recipient-steps" hidden>
+        <div class="actions" id="recipient-actions">
+          <button type="button" id="send-to-pc" hidden>Send invite to your Windows PC</button>
+        </div>
         <p id="solo-steps"><strong>Prefer a solo round?</strong> Pick a hero, select <strong>Quick battleground</strong>, then choose <strong id="solo-mode">Push the Cart</strong>. Join, accept the ready check and <strong>Lock in</strong> when the lobby opens. AI heroes fill empty slots.</p>
       </div>
       <div class="actions" id="share-controls" hidden>
         <button type="button" id="share">Copy invite link</button>
         <button type="button" class="secondary" id="calendar" hidden>Save calendar event</button>
       </div>
-      <p class="status" id="status" role="status"></p>
-      <label id="manual-label" class="muted" for="manual" hidden>Copy this to share your plan</label>
-      <textarea id="manual" rows="4" readonly hidden></textarea>
+      <div id="copy-feedback">
+        <p class="status" id="status" role="status"></p>
+        <label id="manual-label" class="muted" for="manual" hidden>Copy this to share your plan</label>
+        <textarea id="manual" rows="4" readonly hidden></textarea>
+      </div>
       <div id="group-steps" class="join">
         <p id="group-instructions"><strong>Meet by Battlemaster Rook in Saltwake.</strong> Choose <strong>Enter World</strong>. Looking for company? Press <kbd>Enter</kbd> and ask in town chat before joining a match. Press <kbd>F</kbd> near Rook to open Battlegrounds. One person selects <strong>Form a group</strong> and the others join by that player’s in-game name. The leader chooses the mode above and selects <strong>Join battleground</strong>. Everyone accepts the ready check, then chooses <strong>Lock in</strong> when the lobby opens.</p>
         <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
@@ -165,6 +170,7 @@
     const summary = document.getElementById("plan-summary");
     const label = document.getElementById("plan-label");
     const recipientSteps = document.getElementById("recipient-steps");
+    const recipientActions = document.getElementById("recipient-actions");
     const soloSteps = document.getElementById("solo-steps");
     const soloMode = document.getElementById("solo-mode");
     const groupSteps = document.getElementById("group-steps");
@@ -175,12 +181,19 @@
     const time = document.getElementById("plan-time");
     const timezone = document.getElementById("timezone");
     const share = document.getElementById("share");
+    const sendToPc = document.getElementById("send-to-pc");
+    const shareControls = document.getElementById("share-controls");
     const calendar = document.getElementById("calendar");
+    const copyFeedback = document.getElementById("copy-feedback");
     const status = document.getElementById("status");
     const manualLabel = document.getElementById("manual-label");
     const manual = document.getElementById("manual");
     const localHost = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"].includes(location.hostname);
     const shareable = /^https?:$/.test(location.protocol) && !localHost;
+    const userAgent = navigator.userAgent;
+    const offerPcHandoff = shareable && !/Windows NT/i.test(userAgent) &&
+      /Android|iPhone|iPad|iPod|Macintosh|CrOS|Linux/i.test(userAgent);
+    const canShare = typeof navigator.share === "function";
     const formatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
 
     let receivedTime = null;
@@ -214,10 +227,16 @@
       recipientSteps.hidden = !isRecipient;
       groupSteps.hidden = isRecipient;
       share.classList.toggle("secondary", isRecipient);
+      const handoff = isRecipient && offerPcHandoff;
+      sendToPc.hidden = !handoff;
+      share.hidden = handoff && !canShare;
+      downloadLink.classList.toggle("secondary", handoff);
+      if (handoff) recipientActions.after(copyFeedback);
+      else shareControls.after(copyFeedback);
       label.textContent = isRecipient ? "Shared plan" : "Your plan";
       if (isRecipient) {
         planner.prepend(summary);
-        recipientSteps.prepend(downloadLink);
+        recipientActions.append(downloadLink);
         recipientSteps.insertBefore(groupInstructions, soloSteps);
       } else {
         planner.append(summary);
@@ -256,6 +275,13 @@
       return "#" + query.toString();
     }
 
+    function inviteUrl(plan) {
+      const url = new URL(location.href);
+      url.search = "";
+      url.hash = planHash(plan);
+      return url.href;
+    }
+
     function sync() {
       showRecipientPlan(false);
       const plan = render();
@@ -267,23 +293,40 @@
       const scheduled = plan.date ? " on " + plan.date.toLocaleString(undefined, {
         dateStyle: "medium", timeStyle: "short"
       }) + " (" + formatter.resolvedOptions().timeZone + ")" : "";
-      const url = new URL(location.href);
-      url.search = "";
-      url.hash = planHash(plan);
-      const invitation = shareable ? url.href :
+      const invitation = shareable ? inviteUrl(plan) :
         "Play The Salt Mine 3 with me. Let’s try " + modes.get(plan.mode) + scheduled +
         ". Meet in Saltwake. Download free for Windows at https://avoraz.com/download";
+      await copyText(invitation, shareable ? "Invite link copied." : "Invite text copied.", "Copy the selected invitation.");
+    }
+
+    async function copyText(invitation, copied, manualCopy) {
+      manualLabel.hidden = true;
+      manual.hidden = true;
       try {
         await navigator.clipboard.writeText(invitation);
-        status.textContent = shareable ? "Invite link copied." : "Invite text copied.";
+        status.textContent = copied;
       } catch {
         manualLabel.hidden = false;
         manual.hidden = false;
         manual.value = invitation;
         manual.focus();
         manual.select();
-        status.textContent = "Copy the selected invitation.";
+        status.textContent = manualCopy;
       }
+    }
+
+    async function handOffInvite() {
+      const url = inviteUrl(selectedPlan());
+      if (canShare) {
+        try {
+          await navigator.share({ title: "The Salt Mine 3 match invite", url });
+          status.textContent = "Open this invite on the Windows PC you’ll play on.";
+          return;
+        } catch (error) {
+          if (error?.name === "AbortError") return;
+        }
+      }
+      await copyText(url, "Invite copied. Send it to your Windows PC.", "Copy this invite and send it to your Windows PC.");
     }
 
     function saveCalendar() {
@@ -297,11 +340,13 @@
         "DTSTAMP:" + stamp(new Date()), "DTSTART:" + start,
         "DTEND:" + stamp(new Date(plan.date.getTime() + 30 * 60 * 1000)),
         "SUMMARY:The Salt Mine 3 - " + modes.get(plan.mode),
-        "DESCRIPTION:Meet in Saltwake. Download: https://avoraz.com/download",
-        "END:VEVENT", "END:VCALENDAR", ""
-      ].join("\r\n");
+        "DESCRIPTION:Meet in Saltwake. Download: https://avoraz.com/download"
+      ];
+      if (shareable) event.push("URL:" + inviteUrl(plan));
+      event.push("END:VEVENT", "END:VCALENDAR", "");
+      const calendarText = event.map(line => line.replace(/(.{74})(?=.)/g, "$1\r\n ")).join("\r\n");
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(new Blob([event], { type: "text/calendar;charset=utf-8" }));
+      link.href = URL.createObjectURL(new Blob([calendarText], { type: "text/calendar;charset=utf-8" }));
       link.download = "salt-mine-3-match.ics";
       link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
@@ -311,7 +356,8 @@
     timezone.textContent = "Shown in " + formatter.resolvedOptions().timeZone +
       ". Your friend sees the same time in their own time zone.";
     if (!shareable) share.textContent = "Copy invite text";
-    document.getElementById("share-controls").hidden = false;
+    if (!canShare) sendToPc.textContent = "Copy invite for your Windows PC";
+    shareControls.hidden = false;
     readPlan();
     for (const input of modeInputs) input.addEventListener("change", sync);
     when.addEventListener("input", () => {
@@ -319,6 +365,7 @@
       sync();
     });
     share.addEventListener("click", copyInvite);
+    sendToPc.addEventListener("click", handOffInvite);
     calendar.addEventListener("click", saveCalendar);
     window.addEventListener("hashchange", readPlan);
   </script>

@@ -81,6 +81,8 @@
     .join { padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--line); }
     .join p { margin: 0 0 .85rem; font-size: .9rem; color: var(--quiet); }
     #group-instructions strong, #solo-steps strong { color: var(--ink); }
+    #group-instructions ol { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
+    #group-instructions li + li { margin-top: .52rem; }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
     #recipient-steps .download:not(.secondary) { color: #17191c; background: var(--gold); border-color: var(--gold); }
@@ -149,7 +151,15 @@
         <textarea id="manual" rows="4" readonly hidden></textarea>
       </div>
       <div id="group-steps" class="join">
-        <p id="group-instructions"><strong>Meet by Battlemaster Rook in Saltwake.</strong> Choose <strong>Enter World</strong>. Walk through the <strong>SALTWAKE</strong> arch and look to your right for the wooden <strong>BATTLEGROUNDS</strong> board. Rook is beside it. Looking for company? Press <kbd>Enter</kbd> and ask in town chat before joining a match. Press <kbd>F</kbd> near Rook to open Battlegrounds. One person selects <strong>Form a group</strong> and the others join by that player’s in-game name. The leader chooses the mode above and selects <strong>Join battleground</strong>. Everyone accepts the ready check, then chooses <strong>Lock in</strong> when the lobby opens.</p>
+        <div id="group-instructions">
+          <p><strong>Meet by Battlemaster Rook in Saltwake.</strong> Choose <strong>Enter World</strong>. Walk through the <strong>SALTWAKE</strong> arch and look right for the wooden <strong>BATTLEGROUNDS</strong> board. Press <kbd>F</kbd> near Rook to open it. Looking for company? Press <kbd>Enter</kbd> to ask in town chat.</p>
+          <p id="cart-role-tip" hidden><strong>Decide who stays by the cart before you queue.</strong> One player escorts the cart while the other keeps defenders away. Anyone can take either job, and you can swap during the match.</p>
+          <ol>
+            <li><strong>Form a group.</strong> One person selects <strong>Form a group</strong>. The others select <strong>Join</strong> by that player’s name. Check that everyone appears on the board.</li>
+            <li><strong>Queue together.</strong> The leader chooses the mode above and selects <strong>Join battleground</strong>. Everyone selects <strong>Ready for battle</strong>. The ready check shows <strong>Waiting</strong> or <strong>Ready</strong> next to each name.</li>
+            <li><strong>Confirm your hero.</strong> When the lobby opens, everyone selects <strong>Lock in</strong>.</li>
+          </ol>
+        </div>
         <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
@@ -175,6 +185,7 @@
     const soloMode = document.getElementById("solo-mode");
     const groupSteps = document.getElementById("group-steps");
     const groupInstructions = document.getElementById("group-instructions");
+    const cartRoleTip = document.getElementById("cart-role-tip");
     const downloadLink = document.getElementById("download");
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
@@ -267,6 +278,7 @@
       when.setCustomValidity(invalidTime ? "Choose a valid local date and time." : "");
       title.textContent = modes.get(plan.mode);
       soloMode.textContent = title.textContent;
+      cartRoleTip.hidden = plan.mode !== "cart";
       const ended = hasEnded(plan.date);
       time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
       calendar.hidden = !plan.date || ended;

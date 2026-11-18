@@ -4,6 +4,10 @@ const canvas = document.querySelector('#mine');
 const ctx = canvas.getContext('2d');
 const startButton = document.querySelector('#start-btn');
 const winDownload = document.querySelector('#win-download');
+const winSteam = document.querySelector('#win-steam');
+const shareButton = document.querySelector('#share-challenge');
+const shareFallback = document.querySelector('#challenge-fallback');
+const shareUrl = document.querySelector('#challenge-url');
 const overlay = document.querySelector('#overlay');
 const headline = document.querySelector('#headline');
 const hint = document.querySelector('#hint');
@@ -23,20 +27,54 @@ const trackY = 293;
 const maxTime = 30;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const rawTarget = new URLSearchParams(location.search).get('beat');
+const requestedTenths = Number(rawTarget);
+const targetTenths = /^[1-9]\d{0,2}$/.test(rawTarget ?? '') && requestedTenths <= maxTime * 10
+  ? requestedTenths : null;
+const formatTime = tenths => `${(tenths / 10).toFixed(1)}s`;
+
+if (matchMedia('(pointer: coarse)').matches) {
+  hint.textContent = 'Hold Left or Right to move. Tap Knockback near defenders.';
+}
+if (targetTenths !== null) {
+  headline.textContent = `Beat ${formatTime(targetTenths)}`;
+  const playtest = new URL(winSteam.href);
+  playtest.searchParams.set('utm_content', 'challenge_victory');
+  winSteam.href = playtest.href;
+}
 
 function fresh(mode = 'ready') {
   return { mode, player: 230, cart: startCart, time: maxTime, health: 3, cooldown: 0,
-    invulnerable: 0, spawn: 4.7, enemies: [], sparks: [], wave: 0, ring: 0, blocked: false };
+    invulnerable: 0, spawn: 4.7, enemies: [], sparks: [], wave: 0, ring: 0, blocked: false,
+    deliveredTenths: null };
 }
 
 let state = fresh();
 let testingClock = false;
+
+function resetChallengeControls(won) {
+  if (!shareButton) return;
+  shareButton.hidden = !won;
+  shareButton.textContent = 'Copy challenge link';
+  shareFallback.hidden = true;
+  shareUrl.value = '';
+}
+
+function deliveredMessage(deliveredTenths) {
+  const delivery = `Delivered in ${formatTime(deliveredTenths)}.`;
+  if (targetTenths === null) return `${delivery} Can a friend beat your time?`;
+  const difference = targetTenths - deliveredTenths;
+  if (difference > 0) return `${delivery} You beat the challenge by ${formatTime(difference)}!`;
+  if (difference === 0) return `${delivery} You matched the challenge time.`;
+  return `${delivery} The time to beat is ${formatTime(targetTenths)}.`;
+}
 
 function begin() {
   state = fresh('playing');
   keys.clear();
   overlay.hidden = true;
   winDownload.hidden = true;
+  resetChallengeControls(false);
   overlay.classList.remove('is-victory');
   canvas.focus({ preventScroll: true });
   status.textContent = 'Stay close to the cart. Knock defenders away when they get near.';
@@ -45,19 +83,40 @@ function begin() {
 
 function finish(won) {
   state.mode = won ? 'won' : 'lost';
+  state.deliveredTenths = won ? clamp(Math.round((maxTime - state.time) * 10), 1, maxTime * 10) : null;
   keys.clear();
   const progress = Math.floor((state.cart - startCart) / (goal - startCart) * 100);
   headline.textContent = won ? 'Salt delivered!' : 'The cart stopped.';
   hint.textContent = won
-    ? 'Bring a friend into Push the Cart.'
+    ? deliveredMessage(state.deliveredTenths)
     : `You pushed the cart ${progress}% of the way. Stay near it and save your knockback for close defenders.`;
   startButton.textContent = 'Play again';
   winDownload.hidden = !won;
+  resetChallengeControls(won);
   overlay.classList.toggle('is-victory', won);
   overlay.hidden = false;
-  status.textContent = won ? 'You delivered the cart.' : 'Round ended. Ready for another run.';
+  status.textContent = won ? '' : 'Round ended. Ready for another run.';
   startButton.focus();
 }
+
+shareButton?.addEventListener('click', async () => {
+  const round = state;
+  if (round.mode !== 'won') return;
+  const link = new URL('https://tavoraz.github.io/The-Salt-Mine-3-Downloads/');
+  link.searchParams.set('beat', String(round.deliveredTenths));
+  try {
+    await navigator.clipboard.writeText(link.href);
+    if (state !== round) return;
+    shareButton.textContent = 'Link copied';
+    status.textContent = 'Challenge link copied.';
+  } catch {
+    if (state !== round) return;
+    shareFallback.hidden = false;
+    shareUrl.value = link.href;
+    shareUrl.select();
+    status.textContent = 'Copy the selected challenge link.';
+  }
+});
 
 function knockback() {
   if (state.mode !== 'playing' || state.cooldown > 0) return;
@@ -226,7 +285,9 @@ window.render_game_to_text = () => JSON.stringify({
   mode: state.mode, axis: 'x increases toward the lift on the right', player: Math.round(state.player),
   cart: Math.round(state.cart), lift: goal, seconds: Number(Math.max(0,state.time).toFixed(1)),
   health: state.health, contested: state.blocked, cooldown: Number(state.cooldown.toFixed(1)),
-  enemies: state.enemies.map(e => ({ x: Math.round(e.x), stunned: e.stun > 0 }))
+  enemies: state.enemies.map(e => ({ x: Math.round(e.x), stunned: e.stun > 0 })),
+  deliveredSeconds: state.deliveredTenths === null ? null : state.deliveredTenths / 10,
+  timeToBeat: targetTenths === null ? null : targetTenths / 10
 });
 window.advanceTime = ms => {
   testingClock = true;

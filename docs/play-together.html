@@ -176,10 +176,10 @@
         </div>
         <div class="install-options" id="install-options">
           <div class="actions">
-            <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
-            <a id="steam" class="download secondary" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&utm_medium=friend_invite&utm_campaign=steam_playtest_launch">Request access on Steam</a>
+            <a id="steam" class="download" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&utm_medium=friend_invite&utm_campaign=steam_playtest_launch">Play free on Steam</a>
+            <a id="download" class="download secondary" href="https://avoraz.com/download">Direct Windows download</a>
           </div>
-          <p class="hint">Have Steam access? Install <strong>The Salt Mine 3 Playtest</strong> from your Steam Library.</p>
+          <p class="hint">On Steam, select <strong>Request Access</strong>. Steam grants access automatically. Then install <strong>The Salt Mine 3 Playtest</strong> from your Library.</p>
         </div>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
@@ -346,8 +346,8 @@
       }) + " (" + formatter.resolvedOptions().timeZone + ")" : "";
       const invitation = shareable ? inviteUrl(plan) :
         "Play The Salt Mine 3 with me. Let’s try " + modes.get(plan.mode) + scheduled +
-        ". Meet in Saltwake. Download free for Windows at " + downloadLink.href +
-        "\nSteam Playtest: " + steamLink.href;
+        ". Meet in Saltwake. Join the free Steam Playtest at " + steamLink.href +
+        "\nPrefer a direct Windows download? " + downloadLink.href;
       await copyText(invitation, shareable ? "Invite link copied." : "Invite text copied.", "Copy the selected invitation.");
     }
 

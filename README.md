@@ -4,7 +4,7 @@ The Salt Mine 3 is an online fantasy battler by Avoraz. Pick one of nine heroes 
 
 [Download the current Windows installer](https://avoraz.com/download) · [itch.io](https://tavoraz.itch.io/the-salt-mine-3) · [Latest release and checksum](https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/releases/latest)
 
-Open the Windows setup and choose **Install**. Open the game, choose a hero and select **Quick battleground**. When the board opens, choose **Push the Cart**, select **Join Battleground** and accept **Ready for Battle**. You’ll need Windows 10 or 11 (64-bit), a keyboard and mouse, and an internet connection. Multiplayer requires the current version.
+Open the Windows setup and choose **Install**. Open the game, choose a hero and select **Quick battleground**. When the board opens, choose **Push the Cart**, select **Join Battleground** and accept **Ready for Battle**. When the match lobby opens, select **Lock in**. [Follow the first-match guide](https://avoraz.com/first-match-field-guide.html) if you need the full route. You’ll need Windows 10 or 11 (64-bit), a keyboard and mouse, and an internet connection. Multiplayer requires the current version.
 
 If the launcher asks you to update, choose **Update & play**. If setup or an update stalls, use the current installer above and report the step in the [itch.io devlog comments](https://tavoraz.itch.io/the-salt-mine-3/devlog/1763006/v079-your-first-battleground-is-one-step-closer).
 

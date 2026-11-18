@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Pick a battleground and make a plan to play The Salt Mine 3 with a friend.">
+  <meta name="description" content="Plan a free battleground or Lantern Vault dungeon run with friends in The Salt Mine 3.">
   <title>Play together · The Salt Mine 3</title>
   <style>
     :root {
@@ -67,6 +67,8 @@
     h2 { font-size: 2rem; margin: 0; }
     .plan-time { margin: .45rem 0 1rem; color: var(--quiet); overflow-wrap: anywhere; }
     .actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+    #recipient-actions > .install-options { flex: 1 1 100%; }
+    .install-options .hint { margin: .55rem 0 0; }
     button, .download {
       display: inline-flex; align-items: center; justify-content: center;
       min-height: 44px; padding: .65rem .95rem; border-radius: .32rem;
@@ -80,7 +82,7 @@
     .status { min-height: 1.5em; margin: .55rem 0 .15rem; color: var(--gold); font-size: .86rem; }
     .join { padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--line); }
     .join p { margin: 0 0 .85rem; font-size: .9rem; color: var(--quiet); }
-    #group-instructions strong, #solo-steps strong { color: var(--ink); }
+    #group-instructions strong, #solo-steps strong, #solo-vault-steps strong { color: var(--ink); }
     #group-instructions ol { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
     #group-instructions li + li { margin-top: .52rem; }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
@@ -107,7 +109,7 @@
     <div class="wrap">
       <a class="brand" href="https://avoraz.com/">The Salt Mine 3</a>
       <h1>Play together</h1>
-      <p id="planner-intro">Pick a battleground, choose a time if you like, and send the plan to a friend.</p>
+      <p id="planner-intro">Pick a battleground or dungeon, choose a time if you like, and send the plan to a friend.</p>
       <svg class="mark" viewBox="0 0 210 158" fill="none" aria-hidden="true">
         <g stroke="#e8c785" stroke-width="1.4">
           <path d="m102 8 37 37-12 72-26 28-31-32-9-68 41-37Zm0 0-8 61 7 76m-40-100 33 24 45-24m-69 68 24-44 33 48M44 112l-12-29 17-14 13 21m84 21 18-37 15 13-15 31"/>
@@ -119,13 +121,15 @@
   <main id="planner" class="wrap">
     <section aria-label="Match options">
       <fieldset>
-        <legend>Choose a battleground</legend>
+        <legend>Choose what to play</legend>
         <label class="mode"><input type="radio" name="mode" value="cart" checked>
           <span><strong>Push the Cart</strong><small>Win the fight around the cart and push it to your lift.</small></span></label>
         <label class="mode"><input type="radio" name="mode" value="capture">
           <span><strong>Capture the Salt</strong><small>Steal the enemy’s Salt and get it home.</small></span></label>
         <label class="mode"><input type="radio" name="mode" value="war">
           <span><strong>War for the Vein</strong><small>Take outposts and push toward the enemy fortress.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="vault">
+          <span><strong>Lantern Vault</strong><small>Explore a co-op dungeon for one to three players.</small></span></label>
       </fieldset>
       <label class="time-label" for="when">When <span class="optional">(optional)</span></label>
       <input type="datetime-local" id="when" aria-describedby="timezone">
@@ -139,7 +143,8 @@
         <div class="actions" id="recipient-actions">
           <button type="button" id="send-to-pc" hidden>Send invite to your Windows PC</button>
         </div>
-        <p id="solo-steps"><strong>Prefer a solo round?</strong> Pick a hero, select <strong>Quick battleground</strong>, then choose <strong id="solo-mode">Push the Cart</strong>. Join and accept the ready check. If the lobby asks you to confirm your hero, select <strong>Lock in</strong>. AI heroes fill empty slots.</p>
+        <p id="solo-steps"><strong>Prefer a solo round?</strong> Pick a hero, select <strong>Quick battleground</strong>, then choose <strong id="solo-mode">Push the Cart</strong>. Join and accept the ready check. When the lobby opens, select <strong>Lock in</strong>. AI heroes fill empty slots.</p>
+        <p id="solo-vault-steps" hidden><strong>Exploring solo?</strong> At the lantern arch, select <strong>Enter the Vault</strong>.</p>
       </div>
       <div class="actions" id="share-controls" hidden>
         <button type="button" id="share">Copy invite link</button>
@@ -152,15 +157,30 @@
       </div>
       <div id="group-steps" class="join">
         <div id="group-instructions">
-          <p><strong>Meet by Battlemaster Rook in Saltwake.</strong> Choose <strong>Enter World</strong>. Walk through the <strong>SALTWAKE</strong> arch and look right for the wooden <strong>BATTLEGROUNDS</strong> board. Press <kbd>F</kbd> near Rook to open it. Looking for company? Press <kbd>Enter</kbd> to ask in town chat.</p>
-          <p id="cart-role-tip" hidden><strong>Decide who stays by the cart before you queue.</strong> One player escorts the cart while the other keeps defenders away. Anyone can take either job, and you can swap during the match.</p>
-          <ol>
-            <li><strong>Form a group.</strong> One person selects <strong>Form a group</strong>. The others select <strong>Join</strong> by that player’s name. Check that everyone appears on the board.</li>
-            <li><strong>Queue together.</strong> The leader chooses the mode above and selects <strong>Join battleground</strong>. Everyone selects <strong>Ready for battle</strong>. The ready check shows <strong>Waiting</strong> or <strong>Ready</strong> next to each name.</li>
-            <li><strong>Confirm your hero if prompted.</strong> If the lobby asks you to confirm, select <strong>Lock in</strong>.</li>
-          </ol>
+          <div id="battleground-steps">
+            <p><strong>Meet by Battlemaster Rook in Saltwake.</strong> Choose <strong>Enter World</strong>. Walk through the <strong>SALTWAKE</strong> arch and look right for the wooden <strong>BATTLEGROUNDS</strong> board. Press <kbd>F</kbd> near Rook to open it. Looking for company? Press <kbd>Enter</kbd> to ask in town chat.</p>
+            <p id="cart-role-tip" hidden><strong>Decide who stays by the cart before you queue.</strong> One player escorts the cart while the other keeps defenders away. Anyone can take either job, and you can swap during the match.</p>
+            <ol>
+              <li><strong>Form a group.</strong> One person selects <strong>Form a group</strong>. The others select <strong>Join</strong> by that player’s name. Check that everyone appears on the board.</li>
+              <li><strong>Queue together.</strong> The leader chooses the mode above and selects <strong>Join battleground</strong>. Everyone selects <strong>Ready for battle</strong>. The ready check shows <strong>Waiting</strong> or <strong>Ready</strong> next to each name.</li>
+              <li><strong>Confirm your hero.</strong> When the lobby opens, select <strong>Lock in</strong>.</li>
+            </ol>
+          </div>
+          <div id="vault-steps" hidden>
+            <p><strong>Meet at the lantern arch in Saltwake.</strong> Choose <strong>Enter World</strong> and head to the arch in the northeast garden.</p>
+            <ol>
+              <li><strong>Form a group.</strong> One person selects <strong>Form a group</strong> at the arch. Friends select <strong>Join</strong> beside the leader’s name.</li>
+              <li><strong>Enter together.</strong> Everyone selects <strong>I’m ready</strong>. The leader then selects <strong>Enter together</strong>.</li>
+            </ol>
+          </div>
         </div>
-        <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
+        <div class="install-options" id="install-options">
+          <div class="actions">
+            <a id="download" class="download" href="https://avoraz.com/download">Download free for Windows</a>
+            <a id="steam" class="download secondary" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&utm_medium=friend_invite&utm_campaign=steam_playtest_launch">Request access on Steam</a>
+          </div>
+          <p class="hint">Have Steam access? Install <strong>The Salt Mine 3 Playtest</strong> from your Steam Library.</p>
+        </div>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
     </aside>
@@ -171,7 +191,8 @@
     const modes = new Map([
       ["cart", "Push the Cart"],
       ["capture", "Capture the Salt"],
-      ["war", "War for the Vein"]
+      ["war", "War for the Vein"],
+      ["vault", "Lantern Vault"]
     ]);
     const modeInputs = Array.from(document.querySelectorAll('input[name="mode"]'));
     const planner = document.getElementById("planner");
@@ -182,11 +203,16 @@
     const recipientSteps = document.getElementById("recipient-steps");
     const recipientActions = document.getElementById("recipient-actions");
     const soloSteps = document.getElementById("solo-steps");
+    const soloVaultSteps = document.getElementById("solo-vault-steps");
     const soloMode = document.getElementById("solo-mode");
     const groupSteps = document.getElementById("group-steps");
     const groupInstructions = document.getElementById("group-instructions");
     const cartRoleTip = document.getElementById("cart-role-tip");
+    const battlegroundSteps = document.getElementById("battleground-steps");
+    const vaultSteps = document.getElementById("vault-steps");
+    const installOptions = document.getElementById("install-options");
     const downloadLink = document.getElementById("download");
+    const steamLink = document.getElementById("steam");
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
     const time = document.getElementById("plan-time");
@@ -250,12 +276,12 @@
       label.textContent = isRecipient ? "Shared plan" : "Your plan";
       if (isRecipient) {
         planner.prepend(summary);
-        recipientActions.append(downloadLink);
+        recipientActions.append(installOptions);
         recipientSteps.insertBefore(groupInstructions, soloSteps);
       } else {
         planner.append(summary);
         groupSteps.prepend(groupInstructions);
-        groupSteps.append(downloadLink);
+        groupSteps.append(installOptions);
       }
     }
 
@@ -279,6 +305,11 @@
       title.textContent = modes.get(plan.mode);
       soloMode.textContent = title.textContent;
       cartRoleTip.hidden = plan.mode !== "cart";
+      const isVault = plan.mode === "vault";
+      battlegroundSteps.hidden = isVault;
+      vaultSteps.hidden = !isVault;
+      soloSteps.hidden = isVault;
+      soloVaultSteps.hidden = !isVault;
       const ended = hasEnded(plan.date);
       time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
       calendar.hidden = !plan.date || ended;
@@ -315,7 +346,8 @@
       }) + " (" + formatter.resolvedOptions().timeZone + ")" : "";
       const invitation = shareable ? inviteUrl(plan) :
         "Play The Salt Mine 3 with me. Let’s try " + modes.get(plan.mode) + scheduled +
-        ". Meet in Saltwake. Download free for Windows at https://avoraz.com/download";
+        ". Meet in Saltwake. Download free for Windows at " + downloadLink.href +
+        "\nSteam Playtest: " + steamLink.href;
       await copyText(invitation, shareable ? "Invite link copied." : "Invite text copied.", "Copy the selected invitation.");
     }
 

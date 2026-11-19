@@ -10,7 +10,7 @@ The Salt Mine 3 is an online fantasy battler by Avoraz. Pick one of nine heroes 
 
 For a first match, choose a hero and select **Quick battleground**. Choose **Push the Cart**, select **Join Battleground** and accept **Ready for Battle**. Select **Lock in** if the match lobby asks you to confirm your hero. To play a dungeon with friends, choose **Enter World** and meet at the lantern arch in Saltwake’s northeast garden. You’ll need Windows 10 or 11 (64-bit), a keyboard and mouse, an internet connection and the current build. [First-match and dungeon guide](https://avoraz.com/first-match-field-guide.html)
 
-If the launcher asks you to update, choose **Update & play**. If setup or an update stalls, use the current installer above and report the step in the [itch.io devlog comments](https://tavoraz.itch.io/the-salt-mine-3/devlog/1763006/v079-your-first-battleground-is-one-step-closer).
+Steam and the itch app deliver their own updates. With a direct Windows installation, choose **Update & play** when the launcher prompts you. If the Windows setup stalls, get the current installer above. You can describe where you got stuck in the [itch.io devlog comments](https://tavoraz.itch.io/the-salt-mine-3/devlog/1763006/v079-your-first-battleground-is-one-step-closer).
 
 ## Play, bring a friend, or follow along
 

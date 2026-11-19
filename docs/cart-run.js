@@ -27,10 +27,14 @@ const trackY = 293;
 const maxTime = 30;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-const rawTarget = new URLSearchParams(location.search).get('beat');
+const challengeParams = new URLSearchParams(location.search);
+const rawTarget = challengeParams.get('beat');
 const requestedTenths = Number(rawTarget);
 const targetTenths = /^[1-9]\d{0,2}$/.test(rawTarget ?? '') && requestedTenths <= maxTime * 10
   ? requestedTenths : null;
+const rawDistance = challengeParams.get('distance');
+const targetDistance = targetTenths === null && /^[1-9]\d?$/.test(rawDistance ?? '')
+  ? Number(rawDistance) : null;
 const formatTime = tenths => `${(tenths / 10).toFixed(1)}s`;
 
 if (matchMedia('(pointer: coarse)').matches) {
@@ -38,9 +42,16 @@ if (matchMedia('(pointer: coarse)').matches) {
 }
 if (targetTenths !== null) {
   headline.textContent = `Beat ${formatTime(targetTenths)}`;
+} else if (targetDistance !== null) {
+  headline.textContent = `Can you push past ${targetDistance}%?`;
+}
+if (targetTenths !== null || targetDistance !== null) {
   const playtest = new URL(winSteam.href);
   playtest.searchParams.set('utm_content', 'challenge_victory');
   winSteam.href = playtest.href;
+  const pageSteam = document.querySelector('#page-steam');
+  playtest.searchParams.set('utm_content', 'challenge_page');
+  pageSteam.href = playtest.href;
 }
 
 function fresh(mode = 'ready') {
@@ -52,21 +63,34 @@ function fresh(mode = 'ready') {
 let state = fresh();
 let testingClock = false;
 
-function resetChallengeControls(won) {
+function resetChallengeControls(canShare) {
   if (!shareButton) return;
-  shareButton.hidden = !won;
-  shareButton.textContent = 'Copy challenge link';
+  shareButton.hidden = !canShare;
+  shareButton.textContent = 'Challenge a friend';
   shareFallback.hidden = true;
   shareUrl.value = '';
 }
 
 function deliveredMessage(deliveredTenths) {
   const delivery = `Delivered in ${formatTime(deliveredTenths)}.`;
+  if (targetDistance !== null) return `${delivery} You beat the ${targetDistance}% challenge!`;
   if (targetTenths === null) return `${delivery} Can a friend beat your time?`;
   const difference = targetTenths - deliveredTenths;
   if (difference > 0) return `${delivery} You beat the challenge by ${formatTime(difference)}!`;
   if (difference === 0) return `${delivery} You matched the challenge time.`;
   return `${delivery} The time to beat is ${formatTime(targetTenths)}.`;
+}
+
+function cartPercent(cart) {
+  return Math.floor((cart - startCart) / (goal - startCart) * 100);
+}
+
+function stoppedMessage(percent) {
+  const score = `You pushed the cart ${percent}% of the way.`;
+  if (targetDistance === null) return `${score} Stay close and knock defenders away.`;
+  if (percent > targetDistance) return `${score} You beat the ${targetDistance}% challenge!`;
+  if (percent === targetDistance) return `${score} You matched your friend's mark.`;
+  return `${score} Your friend's mark is ${targetDistance}%.`;
 }
 
 function begin() {
@@ -75,7 +99,7 @@ function begin() {
   overlay.hidden = true;
   winDownload.hidden = true;
   resetChallengeControls(false);
-  overlay.classList.remove('is-victory');
+  overlay.classList.remove('is-result', 'is-victory');
   canvas.focus({ preventScroll: true });
   status.textContent = 'Stay close to the cart. Knock defenders away when they get near.';
   render();
@@ -85,14 +109,15 @@ function finish(won) {
   state.mode = won ? 'won' : 'lost';
   state.deliveredTenths = won ? clamp(Math.round((maxTime - state.time) * 10), 1, maxTime * 10) : null;
   keys.clear();
-  const progress = Math.floor((state.cart - startCart) / (goal - startCart) * 100);
+  const progress = cartPercent(state.cart);
   headline.textContent = won ? 'Salt delivered!' : 'The cart stopped.';
   hint.textContent = won
     ? deliveredMessage(state.deliveredTenths)
-    : `You pushed the cart ${progress}% of the way. Stay near it and save your knockback for close defenders.`;
+    : stoppedMessage(progress);
   startButton.textContent = 'Play again';
   winDownload.hidden = !won;
-  resetChallengeControls(won);
+  resetChallengeControls(progress > 0);
+  overlay.classList.add('is-result');
   overlay.classList.toggle('is-victory', won);
   overlay.hidden = false;
   status.textContent = won ? '' : 'Round ended. Ready for another run.';
@@ -101,9 +126,14 @@ function finish(won) {
 
 shareButton?.addEventListener('click', async () => {
   const round = state;
-  if (round.mode !== 'won') return;
   const link = new URL('https://tavoraz.github.io/The-Salt-Mine-3-Downloads/');
-  link.searchParams.set('beat', String(round.deliveredTenths));
+  if (round.mode === 'won') {
+    link.searchParams.set('beat', String(round.deliveredTenths));
+  } else if (round.mode === 'lost' && cartPercent(round.cart) > 0) {
+    link.searchParams.set('distance', String(cartPercent(round.cart)));
+  } else {
+    return;
+  }
   try {
     await navigator.clipboard.writeText(link.href);
     if (state !== round) return;
@@ -113,6 +143,7 @@ shareButton?.addEventListener('click', async () => {
     if (state !== round) return;
     shareFallback.hidden = false;
     shareUrl.value = link.href;
+    shareUrl.focus({ preventScroll: true });
     shareUrl.select();
     status.textContent = 'Copy the selected challenge link.';
   }
@@ -239,6 +270,7 @@ function render() {
   const fraction = (cart - startCart) / (goal - startCart);
   rect(22, 18, 340, 36, '#132028'); rect(22, 55, 340, 6, '#4a5962');
   rect(22, 55, 340 * fraction, 6, '#ffd280');
+  if (targetDistance !== null) rect(22 + 340 * targetDistance / 100 - 1, 52, 3, 12, '#88e3f5');
   ctx.textAlign = 'left'; ctx.font = 'bold 17px system-ui'; ctx.fillStyle = '#fce9bd';
   ctx.fillText(blocked ? 'CART CONTESTED' : 'DELIVER THE SALT', 34, 42);
   ctx.textAlign = 'right'; ctx.fillText(`${Math.ceil(Math.max(0, time))}s  ·  ${health}/3 HP`, 878, 42);
@@ -287,7 +319,8 @@ window.render_game_to_text = () => JSON.stringify({
   health: state.health, contested: state.blocked, cooldown: Number(state.cooldown.toFixed(1)),
   enemies: state.enemies.map(e => ({ x: Math.round(e.x), stunned: e.stun > 0 })),
   deliveredSeconds: state.deliveredTenths === null ? null : state.deliveredTenths / 10,
-  timeToBeat: targetTenths === null ? null : targetTenths / 10
+  timeToBeat: targetTenths === null ? null : targetTenths / 10,
+  percentPushed: cartPercent(state.cart), distanceToBeat: targetDistance
 });
 window.advanceTime = ms => {
   testingClock = true;

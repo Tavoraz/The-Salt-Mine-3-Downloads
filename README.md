@@ -2,9 +2,11 @@
 
 The Salt Mine 3 is an online fantasy battler by Avoraz. Pick one of nine heroes and try an objective match on your own or with friends. AI heroes fill empty battleground slots.
 
-[Join the free Steam Playtest](https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github&utm_medium=readme&utm_campaign=steam_playtest_launch#game_area_purchase) · [Direct Windows installer](https://avoraz.com/download) · [itch.io](https://tavoraz.itch.io/the-salt-mine-3) · [Latest release and checksum](https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/releases/latest)
+[Join the free Steam Playtest](https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github&utm_medium=readme&utm_campaign=steam_playtest_launch#game_area_purchase) · [Direct Windows installer](https://avoraz.com/download) · [Play in the itch app](https://tavoraz.itch.io/the-salt-mine-3#download) · [Latest release and checksum](https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/releases/latest)
 
-On Steam, select **Request Access**, then install **The Salt Mine 3 Playtest** from your Library. Access is automatic and each friend can join through the same store page. If you use the direct Windows installer, open setup and choose **Install**.
+- **Steam.** Accept your friend’s invite on the store page or select **Request Access** to join on your own. Once you have access, install **The Salt Mine 3 Playtest** from your Library.
+- **itch app.** Open the game in the itch app, choose **Install**, select the file ending in `windows-itch-app.zip`, then choose **Launch**. The app handles extraction and patches.
+- **Direct Windows download.** Open the Windows setup and choose **Install**.
 
 For a first match, choose a hero and select **Quick battleground**. Choose **Push the Cart**, select **Join Battleground** and accept **Ready for Battle**. Select **Lock in** if the match lobby asks you to confirm your hero. To play a dungeon with friends, choose **Enter World** and meet at the lantern arch in Saltwake’s northeast garden. You’ll need Windows 10 or 11 (64-bit), a keyboard and mouse, an internet connection and the current build. [First-match and dungeon guide](https://avoraz.com/first-match-field-guide.html)
 

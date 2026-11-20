@@ -27,7 +27,8 @@
   button,.cta{font:700 1rem system-ui;color:#12171c;background:var(--gold);border:0;border-radius:6px;padding:.72rem 1rem;cursor:pointer;text-decoration:none;display:inline-block;touch-action:manipulation}button:hover,.cta:hover{background:#ffe4a8}button:active{transform:translateY(2px)}.overlay button{margin-top:.42rem}
   .result-actions [hidden],.win-steam{display:none}
   .overlay.is-result .result-actions{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:8px;margin-top:.65rem}
-  .overlay.is-victory .win-steam{display:grid;place-items:center}
+  .overlay.is-result .win-steam{display:grid;place-items:center}
+  .overlay.is-result:not(.is-victory) .win-steam{color:var(--gold);background:#202e39;border:1px solid #887955}
   .overlay.is-result .result-actions button{margin:0}
   .overlay.is-victory .result-actions button,#share-challenge,.win-download{color:var(--ink);background:#202e39;border:1px solid #657480}
   .overlay.is-victory .result-actions button:hover,#share-challenge:hover,.win-download:hover{background:#354754}
@@ -58,6 +59,14 @@
   }
   @media(prefers-reduced-motion:reduce){button:active{transform:none}}
   header a{display:inline-flex;align-items:center;gap:.6rem;min-height:44px}
+  .pc-route{margin:.45rem 0 0;font-size:.9rem}
+  .pc-route a{display:inline-block;padding:.45rem .15rem}
+  .pc-route a[hidden],.pc-route button[hidden]{display:none}
+  .pc-route button{background:none;color:var(--gold);font:inherit;text-decoration:underline;padding:.45rem .15rem;margin:0}
+  .pc-route label{display:block;margin:.25rem 0;color:var(--ink)}
+  .pc-route input{display:block;width:100%;padding:.5rem;color:var(--ink);background:#142029;border:1px solid #657480;border-radius:5px}
+  .pc-route .pc-feedback{display:block;color:var(--muted)}
+  #overlay:has(.pc-manual:not([hidden])){position:relative;inset:auto}
 </style>
 <main>
   <header><a href="https://avoraz.com/"><img src="media/crystal-crest.png" width="32" height="32" alt=""><strong>THE SALT MINE 3</strong></a><span>A FREE BROWSER MINI-GAME BY AVORAZ</span></header>
@@ -69,15 +78,16 @@
       <h2 id="headline">One cart. Thirty seconds.</h2>
       <p id="hint">Move with ← and →. Press Space to knock back nearby defenders.</p>
       <div class="result-actions">
-        <a id="win-steam" class="cta win-steam" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=victory" target="_blank" rel="noopener">Play free on Steam</a>
         <button id="start-btn" type="button" aria-describedby="hint">Start Cart Run</button>
         <button id="share-challenge" type="button" hidden>Challenge a friend</button>
+        <a id="win-steam" class="cta win-steam" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=victory#game_area_purchase" target="_blank" rel="noopener">Join free on Steam</a>
         <a id="win-download" class="cta win-download" href="https://avoraz.com/download?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=cart_run_win" target="_blank" rel="noopener" hidden>Direct Windows download</a>
       </div>
       <div id="challenge-fallback" class="challenge-fallback" hidden>
         <label for="challenge-url">Copy this challenge link</label>
         <input id="challenge-url" type="url" readonly>
       </div>
+      <div id="result-pc-route"></div>
     </div></div>
   </section>
   <p class="phone-hud"><span id="phone-status">30s · 3/3 HP</span><span id="phone-pulse">Knockback ready</span></p>
@@ -89,9 +99,17 @@
   <p id="status" class="status" aria-live="polite">Ready to start.</p>
   <div class="after">
     <div><strong>Try the full game</strong><p><a href="https://avoraz.com/play/push-the-cart?utm_source=cart_run" target="_blank" rel="noopener">Take a friend into Push the Cart on Windows.</a> One of you can guard the cart while the other clears the track.</p></div>
-    <nav><a id="page-steam" class="cta" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=page" target="_blank" rel="noopener">Free Steam Playtest</a><a href="https://avoraz.com/download?utm_campaign=first_players" target="_blank" rel="noopener">Direct Windows download</a><a id="friend-link" href="play-together.html">Bring a friend</a></nav>
+    <div id="page-pc-route">
+      <nav aria-label="Full Windows game"><a id="page-steam" class="cta" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=page#game_area_purchase" target="_blank" rel="noopener">Join free on Steam</a><a href="https://avoraz.com/download?utm_campaign=first_players" target="_blank" rel="noopener">Direct Windows download</a><a id="friend-link" href="play-together.html">Bring a friend</a></nav>
+      <div id="pc-route" class="pc-route">
+        <a id="steam-install" href="steam://install/5579000" hidden>Already joined? Install in Steam</a>
+        <button id="send-pc" type="button" hidden>Send the Playtest to my PC</button>
+        <span id="pc-feedback" class="pc-feedback" role="status"></span>
+        <div id="pc-manual" class="pc-manual" hidden><label for="pc-url">Copy this link and open it on your PC</label><input id="pc-url" type="url" readonly></div>
+      </div>
+    </div>
   </div>
   <footer>Cart Run is a solo browser mini-game inspired by Push the Cart. <a href="https://tavoraz.itch.io/the-salt-mine-3/devlog.rss">Follow releases via RSS</a> · <a href="https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/issues/new/choose">Send public first-match feedback</a></footer>
 </main>
-<script src="cart-run.js?v=challenge-2"></script>
+<script src="cart-run.js?v=playtest-handoff-1"></script>
 </html>

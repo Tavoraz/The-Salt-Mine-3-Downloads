@@ -252,7 +252,7 @@
     const downloadLink = document.getElementById("download");
     const steamLink = document.getElementById("steam");
     const originalSteamUrl = steamLink.href;
-    const fromIndieHub = new URLSearchParams(location.search).get("via") === "indiehub";
+    const inviteSource = new URLSearchParams(location.search).get("via");
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
     const time = document.getElementById("plan-time");
@@ -360,10 +360,15 @@
       const steamUrl = new URL(originalSteamUrl);
       if (isVale) {
         steamUrl.searchParams.set("utm_content", "saltwake_vale");
-        if (fromIndieHub) {
+        if (inviteSource === "indiehub") {
           steamUrl.searchParams.set("utm_source", "bluesky");
           steamUrl.searchParams.set("utm_medium", "indiehub");
         }
+      }
+      if (plan.mode === "cart" && inviteSource === "cart_run_pc") {
+        steamUrl.searchParams.set("utm_source", "cart_run");
+        steamUrl.searchParams.set("utm_medium", "browser_game");
+        steamUrl.searchParams.set("utm_content", "pc_handoff");
       }
       steamLink.href = steamUrl.href;
       const ended = hasEnded(plan.date);

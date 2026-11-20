@@ -14,11 +14,45 @@ const hint = document.querySelector('#hint');
 const status = document.querySelector('#status');
 const phoneStatus = document.querySelector('#phone-status');
 const phonePulse = document.querySelector('#phone-pulse');
+const pcRoute = document.querySelector('#pc-route');
+const sendPc = document.querySelector('#send-pc');
+const steamInstall = document.querySelector('#steam-install');
+const pcManual = document.querySelector('#pc-manual');
+const pcFeedback = document.querySelector('#pc-feedback');
+const pcUrl = document.querySelector('#pc-url');
+const onWindows = /Windows NT/i.test(navigator.userAgent) || navigator.userAgentData?.platform === 'Windows';
+steamInstall.hidden = !onWindows;
+sendPc.hidden = onWindows;
+if (typeof navigator.share !== 'function') sendPc.textContent = 'Copy Playtest link for my PC';
+sendPc.addEventListener('click', async () => {
+  const url = 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart';
+  pcFeedback.textContent = '';
+  pcManual.hidden = true;
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ title: 'The Salt Mine 3 · Free Windows Playtest', url });
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    pcFeedback.textContent = 'Link copied. Open it on your Windows PC.';
+  } catch {
+    pcManual.hidden = false;
+    pcUrl.value = url;
+    pcUrl.focus();
+    pcUrl.select();
+  }
+});
 if (window.top !== window.self) {
   const invite = document.querySelector('#friend-link');
   invite.href = 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html';
   invite.target = '_blank';
   invite.rel = 'noopener';
+  steamInstall.target = '_blank';
+  steamInstall.rel = 'noopener';
 }
 const keys = new Set();
 const goal = 799;
@@ -45,11 +79,10 @@ if (targetTenths !== null) {
 } else if (targetDistance !== null) {
   headline.textContent = `Can you push past ${targetDistance}%?`;
 }
-if (targetTenths !== null || targetDistance !== null) {
-  const playtest = new URL(winSteam.href);
-  playtest.searchParams.set('utm_content', 'challenge_victory');
-  winSteam.href = playtest.href;
+const isChallenge = targetTenths !== null || targetDistance !== null;
+if (isChallenge) {
   const pageSteam = document.querySelector('#page-steam');
+  const playtest = new URL(pageSteam.href);
   playtest.searchParams.set('utm_content', 'challenge_page');
   pageSteam.href = playtest.href;
 }
@@ -94,6 +127,9 @@ function stoppedMessage(percent) {
 }
 
 function begin() {
+  document.querySelector('#page-pc-route').append(pcRoute);
+  pcManual.hidden = true;
+  pcFeedback.textContent = '';
   state = fresh('playing');
   keys.clear();
   overlay.hidden = true;
@@ -115,6 +151,11 @@ function finish(won) {
     ? deliveredMessage(state.deliveredTenths)
     : stoppedMessage(progress);
   startButton.textContent = 'Play again';
+  const resultLink = new URL(winSteam.href);
+  const outcome = won ? 'victory' : 'attempt';
+  resultLink.searchParams.set('utm_content', isChallenge ? `challenge_${outcome}` : outcome);
+  winSteam.href = resultLink.href;
+  document.querySelector('#result-pc-route').append(pcRoute);
   winDownload.hidden = !won;
   resetChallengeControls(progress > 0);
   overlay.classList.add('is-result');

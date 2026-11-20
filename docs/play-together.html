@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Plan a free battleground or Lantern Vault dungeon run with friends in The Salt Mine 3.">
+  <meta name="description" content="Meet a friend for the first Saltwake Vale quests, a Lantern Vault dungeon run or a battleground in The Salt Mine 3. Free on Windows.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Salt Mine 3 · Avoraz">
   <meta property="og:title" content="Play together · The Salt Mine 3">
-  <meta property="og:description" content="Pick a battleground or meet at the lantern arch. Share a plan for a free Windows game with friends.">
+  <meta property="og:description" content="Meet in Lowfield Orchard, at the lantern arch or on a battleground. Share a plan for a free Windows game with friends.">
   <meta property="og:image" content="https://avoraz.com/media/brand/the-salt-mine-3-share.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -96,7 +96,7 @@
     .join { padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--line); }
     .join p { margin: 0 0 .85rem; font-size: .9rem; color: var(--quiet); }
     #group-instructions strong, #solo-steps strong, #solo-vault-steps strong { color: var(--ink); }
-    #group-instructions ol { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
+    #group-instructions ol, #group-instructions ul { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
     #group-instructions li + li { margin-top: .52rem; }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
@@ -122,7 +122,7 @@
     <div class="wrap">
       <a class="brand" href="https://avoraz.com/"><img src="media/crystal-crest.png" width="32" height="32" alt="">The Salt Mine 3</a>
       <h1>Play together</h1>
-      <p id="planner-intro">Pick a battleground or dungeon, choose a time if you like, and send the plan to a friend.</p>
+      <p id="planner-intro">Pick a quest, dungeon or battleground and send the plan to a friend. You can add a time if you like.</p>
       <svg class="mark" viewBox="0 0 210 158" fill="none" aria-hidden="true">
         <g stroke="#e8c785" stroke-width="1.4">
           <path d="m102 8 37 37-12 72-26 28-31-32-9-68 41-37Zm0 0-8 61 7 76m-40-100 33 24 45-24m-69 68 24-44 33 48M44 112l-12-29 17-14 13 21m84 21 18-37 15 13-15 31"/>
@@ -132,7 +132,7 @@
     </div>
   </header>
   <main id="planner" class="wrap">
-    <section aria-label="Match options">
+    <section aria-label="Adventure options">
       <fieldset>
         <legend>Choose what to play</legend>
         <label class="mode"><input type="radio" name="mode" value="cart" checked>
@@ -143,6 +143,8 @@
           <span><strong>War for the Vein</strong><small>Take outposts and push toward the enemy fortress.</small></span></label>
         <label class="mode"><input type="radio" name="mode" value="vault">
           <span><strong>Lantern Vault</strong><small>Explore a co-op dungeon for one to three players.</small></span></label>
+        <label class="mode"><input type="radio" name="mode" value="vale">
+          <span><strong>Saltwake Vale</strong><small>Pick windfall apples or chase raiders out of Lowfield Orchard.</small></span></label>
       </fieldset>
       <label class="time-label" for="when">When <span class="optional">(optional)</span></label>
       <input type="datetime-local" id="when" aria-describedby="timezone">
@@ -187,6 +189,15 @@
             </ol>
             <p>What if a teammate goes down? <a href="https://avoraz.com/play/lantern-vault?utm_source=friend_planner#make-the-call">Make the rescue call with a friend.</a></p>
           </div>
+          <div id="vale-steps" hidden>
+            <p><strong>Meet at the SALTWAKE VALE arch.</strong> Pick your hero and choose <strong>Enter World</strong>. Walk north around Saltwake’s central crystal beacon and follow the road under the arch. You can head out alone while your friend installs.</p>
+            <p>On the Vale side, press <kbd>F</kbd> to talk to <strong>Nell</strong> or <strong>Rowan, the Vale Warden</strong>. Each player should accept their quest before heading to Lowfield Orchard.</p>
+            <ul>
+              <li><strong>Something for the Road.</strong> Gather three windfall apples under the orchard trees. Return to Nell for 140 Adventure XP and Nell’s Traveller’s Knot, a health relic.</li>
+              <li><strong>A Winter Stolen.</strong> Defeat three Wickpin raiders near the orchard. Return to Rowan for 230 Adventure XP and the Orchard Watchbadge, a power relic.</li>
+            </ul>
+            <p>Either quest works solo. The default keys are <kbd>M</kbd> for your map, <kbd>L</kbd> for your quest journal and <kbd>B</kbd> for your bag.</p>
+          </div>
         </div>
         <div class="install-options" id="install-options">
           <div class="actions">
@@ -207,7 +218,8 @@
       ["cart", "Push the Cart"],
       ["capture", "Capture the Salt"],
       ["war", "War for the Vein"],
-      ["vault", "Lantern Vault"]
+      ["vault", "Lantern Vault"],
+      ["vale", "Saltwake Vale"]
     ]);
     const modeInputs = Array.from(document.querySelectorAll('input[name="mode"]'));
     const planner = document.getElementById("planner");
@@ -225,6 +237,7 @@
     const cartRoleTip = document.getElementById("cart-role-tip");
     const battlegroundSteps = document.getElementById("battleground-steps");
     const vaultSteps = document.getElementById("vault-steps");
+    const valeSteps = document.getElementById("vale-steps");
     const installOptions = document.getElementById("install-options");
     const downloadLink = document.getElementById("download");
     const steamLink = document.getElementById("steam");
@@ -323,9 +336,11 @@
       soloMode.textContent = title.textContent;
       cartRoleTip.hidden = plan.mode !== "cart";
       const isVault = plan.mode === "vault";
-      battlegroundSteps.hidden = isVault;
+      const isVale = plan.mode === "vale";
+      battlegroundSteps.hidden = isVault || isVale;
       vaultSteps.hidden = !isVault;
-      soloSteps.hidden = isVault;
+      valeSteps.hidden = !isVale;
+      soloSteps.hidden = isVault || isVale;
       soloVaultSteps.hidden = !isVault;
       const ended = hasEnded(plan.date);
       time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
@@ -388,7 +403,7 @@
       const url = inviteUrl(selectedPlan());
       if (canShare) {
         try {
-          await navigator.share({ title: "The Salt Mine 3 match invite", url });
+          await navigator.share({ title: "The Salt Mine 3 invite", url });
           status.textContent = "Open this invite on the Windows PC you’ll play on.";
           return;
         } catch (error) {

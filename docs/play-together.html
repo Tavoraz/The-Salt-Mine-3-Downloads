@@ -34,7 +34,7 @@
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; color: var(--ink); background: var(--slate); }
     a { color: var(--gold); text-underline-offset: .22em; }
-    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible {
       outline: 3px solid #ffe2a5; outline-offset: 4px;
     }
     .band {
@@ -98,6 +98,8 @@
     #group-instructions strong, #solo-steps strong, #solo-vault-steps strong { color: var(--ink); }
     #group-instructions ol, #group-instructions ul { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
     #group-instructions li + li { margin-top: .52rem; }
+    #watchbadge { margin-block: 1rem; border-block: 1px solid var(--line); scroll-margin-block: 1rem; }
+    #watchbadge summary { padding: .75rem 0; cursor: pointer; color: var(--gold); font-weight: 700; }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
     #recipient-steps .download:not(.secondary) { color: #17191c; background: var(--gold); border-color: var(--gold); }
@@ -196,6 +198,13 @@
               <li><strong>Something for the Road.</strong> Gather three windfall apples under the orchard trees. Return to Nell for 140 Adventure XP and Nell’s Traveller’s Knot, a health relic.</li>
               <li><strong>A Winter Stolen.</strong> Defeat three Wickpin raiders near the orchard. Return to Rowan for 230 Adventure XP and the Orchard Watchbadge, a power relic.</li>
             </ul>
+            <details id="watchbadge">
+              <summary>At 3/3 raiders? Find Rowan and claim your Watchbadge</summary>
+              <ol>
+                <li><strong>Head west from the raiders toward Saltwake.</strong> Stay on the Vale side. On the map (<kbd>M</kbd> by default), Rowan’s gold <strong>?</strong> is just north of the Saltwake label, roughly 110 metres west of the raiders’ clearing.</li>
+                <li><strong>Talk to Rowan, the Vale Warden.</strong> Move close and use your Interact key (<kbd>F</kbd> by default). In <em>A Winter Stolen</em>, choose <strong>Finish quest</strong> to receive 230 Adventure XP and the Orchard Watchbadge. If you’re playing together, each of you claims your own reward.</li>
+              </ol>
+            </details>
             <p>Either quest works solo. Press <kbd>M</kbd> for your map or <kbd>L</kbd> for your quest journal on the default controls. <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3843131587">See the quest tracker in the Steam walkthrough.</a></p>
           </div>
         </div>
@@ -238,6 +247,7 @@
     const battlegroundSteps = document.getElementById("battleground-steps");
     const vaultSteps = document.getElementById("vault-steps");
     const valeSteps = document.getElementById("vale-steps");
+    const watchbadge = document.getElementById("watchbadge");
     const installOptions = document.getElementById("install-options");
     const downloadLink = document.getElementById("download");
     const steamLink = document.getElementById("steam");
@@ -287,6 +297,8 @@
       when.value = receivedTime ? localValue(receivedTime) : "";
       const plan = render();
       showRecipientPlan(validMode && (!query.has("at") || plan.date !== null), plan.date);
+      watchbadge.open = validMode && mode === "vale" && query.getAll("step").length === 1 && query.get("step") === "watchbadge";
+      if (watchbadge.open) requestAnimationFrame(() => watchbadge.scrollIntoView({ block: "start" }));
     }
 
     function showRecipientPlan(isRecipient, date = null) {
@@ -342,6 +354,7 @@
       battlegroundSteps.hidden = isVault || isVale;
       vaultSteps.hidden = !isVault;
       valeSteps.hidden = !isVale;
+      if (!isVale) watchbadge.open = false;
       soloSteps.hidden = isVault || isVale;
       soloVaultSteps.hidden = !isVault;
       const steamUrl = new URL(originalSteamUrl);
@@ -365,6 +378,7 @@
 
     function planHash(plan) {
       const query = new URLSearchParams({ mode: plan.mode });
+      if (plan.mode === "vale" && watchbadge.open) query.set("step", "watchbadge");
       if (plan.date) query.set("at", plan.date.toISOString());
       return "#" + query.toString();
     }

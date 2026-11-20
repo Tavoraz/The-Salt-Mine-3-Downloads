@@ -190,10 +190,11 @@
         </div>
         <div class="install-options" id="install-options">
           <div class="actions">
-            <a id="steam" class="download" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&utm_medium=friend_invite&utm_campaign=steam_playtest_launch#game_area_purchase">Play free on Steam</a>
+            <a id="steam" class="download" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&utm_medium=friend_invite&utm_campaign=steam_playtest_launch#game_area_purchase">Join free on Steam</a>
+            <a id="steam-install" class="download secondary" href="steam://install/5579000" hidden>Already joined? Install in Steam</a>
             <a id="download" class="download secondary" href="https://avoraz.com/download">Direct Windows download</a>
           </div>
-          <p class="hint"><strong>Got a Steam invite?</strong> Open the bell in Steam or accept your friend’s invitation on the store page. Joining on your own? Choose <strong>Request Access</strong>. Once you have access, install <strong>The Salt Mine 3 Playtest</strong> from your Library.</p>
+          <p class="hint"><strong>Friend sent you a Steam invite?</strong> Accept it from Steam’s notification bell or the store page. After joining, you’ll find <strong>The Salt Mine 3 Playtest</strong> in your Steam Library on Windows.</p>
         </div>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
@@ -242,7 +243,9 @@
     const localHost = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"].includes(location.hostname);
     const shareable = /^https?:$/.test(location.protocol) && !localHost;
     const userAgent = navigator.userAgent;
-    const offerPcHandoff = shareable && !/Windows NT/i.test(userAgent) &&
+    const onWindows = /Windows NT/i.test(userAgent) || navigator.userAgentData?.platform === "Windows";
+    document.getElementById("steam-install").hidden = !onWindows;
+    const offerPcHandoff = shareable && !onWindows &&
       /Android|iPhone|iPad|iPod|Macintosh|CrOS|Linux/i.test(userAgent);
     const canShare = typeof navigator.share === "function";
     const formatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });

@@ -196,7 +196,7 @@
               <li><strong>Something for the Road.</strong> Gather three windfall apples under the orchard trees. Return to Nell for 140 Adventure XP and Nell’s Traveller’s Knot, a health relic.</li>
               <li><strong>A Winter Stolen.</strong> Defeat three Wickpin raiders near the orchard. Return to Rowan for 230 Adventure XP and the Orchard Watchbadge, a power relic.</li>
             </ul>
-            <p>Either quest works solo. The default keys are <kbd>M</kbd> for your map, <kbd>L</kbd> for your quest journal and <kbd>B</kbd> for your bag.</p>
+            <p>Either quest works solo. Press <kbd>M</kbd> for your map or <kbd>L</kbd> for your quest journal on the default controls. <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3843131587">See the quest tracker in the Steam walkthrough.</a></p>
           </div>
         </div>
         <div class="install-options" id="install-options">
@@ -241,6 +241,8 @@
     const installOptions = document.getElementById("install-options");
     const downloadLink = document.getElementById("download");
     const steamLink = document.getElementById("steam");
+    const originalSteamUrl = steamLink.href;
+    const fromIndieHub = new URLSearchParams(location.search).get("via") === "indiehub";
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
     const time = document.getElementById("plan-time");
@@ -342,6 +344,15 @@
       valeSteps.hidden = !isVale;
       soloSteps.hidden = isVault || isVale;
       soloVaultSteps.hidden = !isVault;
+      const steamUrl = new URL(originalSteamUrl);
+      if (isVale) {
+        steamUrl.searchParams.set("utm_content", "saltwake_vale");
+        if (fromIndieHub) {
+          steamUrl.searchParams.set("utm_source", "bluesky");
+          steamUrl.searchParams.set("utm_medium", "indiehub");
+        }
+      }
+      steamLink.href = steamUrl.href;
       const ended = hasEnded(plan.date);
       time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
       calendar.hidden = !plan.date || ended;

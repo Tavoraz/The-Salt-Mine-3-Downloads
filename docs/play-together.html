@@ -223,6 +223,7 @@
             <a id="steam-install" href="steam://install/5579000">Install in Steam</a>
             <a id="steam-play" href="steam://run/5579000">Launch installed game</a>
           </div>
+          <p class="hint" id="remote-install" hidden><strong>Already joined?</strong> With Steam running on your Windows PC, <a href="https://steamcommunity.com/my/games/?tab=all" target="_blank" rel="noopener">open your Steam library</a> here with the same account. Search for <strong>The Salt Mine 3 Playtest</strong> and select <strong>Install</strong>. If your PC is offline, the Playtest stays in your library for later.</p>
           <p class="hint"><strong>Friend sent you a Steam invite?</strong> Accept it from Steam’s notification bell or the store page. After joining, you’ll find <strong>The Salt Mine 3 Playtest</strong> in your Steam Library on Windows.</p>
           <span class="hint" id="library-feedback" role="status"></span>
         </div>
@@ -291,6 +292,7 @@
     });
     const offerPcHandoff = shareable && !onWindows &&
       /Android|iPhone|iPad|iPod|Macintosh|CrOS|Linux/i.test(userAgent);
+    document.getElementById("remote-install").hidden = !offerPcHandoff;
     const canShare = typeof navigator.share === "function";
     const formatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
 

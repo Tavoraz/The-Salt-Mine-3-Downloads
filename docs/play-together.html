@@ -330,7 +330,7 @@
       const handoff = isRecipient && offerPcHandoff;
       sendToPc.hidden = !handoff;
       share.hidden = handoff && !canShare;
-      downloadLink.classList.toggle("secondary", handoff);
+      steamLink.classList.toggle("secondary", handoff);
       if (handoff) recipientActions.after(copyFeedback);
       else shareControls.after(copyFeedback);
       label.textContent = isRecipient ? "Shared plan" : "Your plan";

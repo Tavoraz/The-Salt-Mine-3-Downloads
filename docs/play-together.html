@@ -82,6 +82,8 @@
     .actions { display: flex; flex-wrap: wrap; gap: .65rem; }
     #recipient-actions > .install-options { flex: 1 1 100%; }
     .install-options .hint { margin: .55rem 0 0; }
+    .library-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; margin-top: .5rem; }
+    .library-actions a { display: inline-flex; align-items: center; min-height: 44px; }
     button, .download {
       display: inline-flex; align-items: center; justify-content: center;
       min-height: 44px; padding: .65rem .95rem; border-radius: .32rem;
@@ -211,10 +213,15 @@
         <div class="install-options" id="install-options">
           <div class="actions">
             <a id="steam" class="download" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&utm_medium=friend_invite&utm_campaign=steam_playtest_launch#game_area_purchase">Join free on Steam</a>
-            <a id="steam-install" class="download secondary" href="steam://install/5579000" hidden>Already joined? Install in Steam</a>
             <a id="download" class="download secondary" href="https://avoraz.com/download">Direct Windows download</a>
           </div>
+          <div class="library-actions" id="library-actions" hidden>
+            <strong>Already joined?</strong>
+            <a id="steam-install" href="steam://install/5579000">Install in Steam</a>
+            <a id="steam-play" href="steam://run/5579000">Launch installed game</a>
+          </div>
           <p class="hint"><strong>Friend sent you a Steam invite?</strong> Accept it from Steam’s notification bell or the store page. After joining, you’ll find <strong>The Salt Mine 3 Playtest</strong> in your Steam Library on Windows.</p>
+          <span class="hint" id="library-feedback" role="status"></span>
         </div>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
@@ -268,8 +275,17 @@
     const localHost = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"].includes(location.hostname);
     const shareable = /^https?:$/.test(location.protocol) && !localHost;
     const userAgent = navigator.userAgent;
-    const onWindows = /Windows NT/i.test(userAgent) || navigator.userAgentData?.platform === "Windows";
-    document.getElementById("steam-install").hidden = !onWindows;
+    const onWindows = (/Windows NT/i.test(userAgent) || navigator.userAgentData?.platform === "Windows") &&
+      !/Windows Phone|IEMobile|Android/i.test(userAgent);
+    const libraryActions = document.getElementById("library-actions");
+    libraryActions.hidden = !onWindows;
+    libraryActions.addEventListener("click", event => {
+      const link = event.target.closest("a");
+      if (!link) return;
+      const action = link.id === "steam-play" ? "Play" : "Install";
+      document.getElementById("library-feedback").textContent =
+        "If Steam didn’t open, select The Salt Mine 3 Playtest in your Steam Library and choose " + action + ".";
+    });
     const offerPcHandoff = shareable && !onWindows &&
       /Android|iPhone|iPad|iPod|Macintosh|CrOS|Linux/i.test(userAgent);
     const canShare = typeof navigator.share === "function";

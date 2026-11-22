@@ -4,6 +4,9 @@ const pageUrl = new URL(location.href);
 const requestedLanguage = pageUrl.searchParams.get('lang');
 const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^es(?:-|$)/i.test(navigator.language));
 const msg = (english, espanol) => spanish ? espanol : english;
+// Keep attribution at the publisher level. A shared score starts a fresh visit.
+const publisher = pageUrl.searchParams.get('via') === 'elenagames' ? 'elenagames' :
+  (window.self !== window.top && /^https:\/\/(?:www\.)?slowden\.com(?:\/|$)/.test(document.referrer) ? 'slowden' : 'cart_run');
 const languageLink = document.querySelector('#language');
 const alternate = new URL(pageUrl);
 alternate.searchParams.set('lang', spanish ? 'en' : 'es');
@@ -15,19 +18,22 @@ if (spanish) {
   document.querySelectorAll('[data-es]').forEach(el => { el.textContent = el.dataset.es; });
   document.querySelectorAll('[data-es-label]').forEach(el => { el.setAttribute('aria-label', el.dataset.esLabel); });
   document.querySelector('#pc-language').hidden = false;
-  for (const anchor of document.querySelectorAll('a[href]')) {
-    const url = new URL(anchor.href);
-    if (url.hostname === 'store.steampowered.com') {
+}
+for (const anchor of document.querySelectorAll('a[href]')) {
+  const url = new URL(anchor.href);
+  if (url.hostname === 'store.steampowered.com') {
+    url.searchParams.set('utm_source', publisher);
+    if (spanish) {
       url.searchParams.set('l', 'spanish');
       url.searchParams.set('utm_campaign', 'cart_run_es');
-      anchor.href = url.href;
-    } else if (url.hostname === 'avoraz.com' && (url.pathname === '/' || url.pathname === '/download')) {
-      url.pathname = url.pathname === '/' ? '/es' : '/es/download';
-      anchor.href = url.href;
     }
+    anchor.href = url.href;
+  } else if (spanish && url.hostname === 'avoraz.com' && (url.pathname === '/' || url.pathname === '/download')) {
+    url.pathname = url.pathname === '/' ? '/es' : '/es/download';
+    anchor.href = url.href;
   }
 }
-const spanishSteam = 'https://store.steampowered.com/app/5578970/?l=spanish&utm_source=cart_run&utm_medium=browser_game&utm_campaign=cart_run_es&utm_content=send_to_pc#game_area_purchase';
+const spanishSteam = `https://store.steampowered.com/app/5578970/?l=spanish&utm_source=${publisher}&utm_medium=browser_game&utm_campaign=cart_run_es&utm_content=send_to_pc#game_area_purchase`;
 
 const canvas = document.querySelector('#mine');
 const ctx = canvas.getContext('2d');

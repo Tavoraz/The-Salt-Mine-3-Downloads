@@ -1,5 +1,34 @@
 'use strict';
 
+const pageUrl = new URL(location.href);
+const requestedLanguage = pageUrl.searchParams.get('lang');
+const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^es(?:-|$)/i.test(navigator.language));
+const msg = (english, espanol) => spanish ? espanol : english;
+const languageLink = document.querySelector('#language');
+const alternate = new URL(pageUrl);
+alternate.searchParams.set('lang', spanish ? 'en' : 'es');
+languageLink.href = alternate.href;
+if (spanish) {
+  document.documentElement.lang = 'es';
+  languageLink.textContent = 'English';
+  languageLink.lang = languageLink.hreflang = 'en';
+  document.querySelectorAll('[data-es]').forEach(el => { el.textContent = el.dataset.es; });
+  document.querySelectorAll('[data-es-label]').forEach(el => { el.setAttribute('aria-label', el.dataset.esLabel); });
+  document.querySelector('#pc-language').hidden = false;
+  for (const anchor of document.querySelectorAll('a[href]')) {
+    const url = new URL(anchor.href);
+    if (url.hostname === 'store.steampowered.com') {
+      url.searchParams.set('l', 'spanish');
+      url.searchParams.set('utm_campaign', 'cart_run_es');
+      anchor.href = url.href;
+    } else if (url.hostname === 'avoraz.com' && (url.pathname === '/' || url.pathname === '/download')) {
+      url.pathname = url.pathname === '/' ? '/es' : '/es/download';
+      anchor.href = url.href;
+    }
+  }
+}
+const spanishSteam = 'https://store.steampowered.com/app/5578970/?l=spanish&utm_source=cart_run&utm_medium=browser_game&utm_campaign=cart_run_es&utm_content=send_to_pc#game_area_purchase';
+
 const canvas = document.querySelector('#mine');
 const ctx = canvas.getContext('2d');
 const startButton = document.querySelector('#start-btn');
@@ -17,20 +46,22 @@ const phonePulse = document.querySelector('#phone-pulse');
 const pcRoute = document.querySelector('#pc-route');
 const sendPc = document.querySelector('#send-pc');
 const steamInstall = document.querySelector('#steam-install');
+const steamPlay = document.querySelector('#steam-play');
 const pcManual = document.querySelector('#pc-manual');
 const pcFeedback = document.querySelector('#pc-feedback');
 const pcUrl = document.querySelector('#pc-url');
 const onWindows = /Windows NT/i.test(navigator.userAgent) || navigator.userAgentData?.platform === 'Windows';
 steamInstall.hidden = !onWindows;
+steamPlay.hidden = !onWindows;
 sendPc.hidden = onWindows;
-if (typeof navigator.share !== 'function') sendPc.textContent = 'Copy Playtest link for my PC';
+if (typeof navigator.share !== 'function') sendPc.textContent = msg("Copy Playtest link for my PC", "Copiar el enlace para mi PC");
 sendPc.addEventListener('click', async () => {
-  const url = 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart';
+  const url = spanish ? spanishSteam : 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart';
   pcFeedback.textContent = '';
   pcManual.hidden = true;
   if (typeof navigator.share === 'function') {
     try {
-      await navigator.share({ title: 'The Salt Mine 3 · Free Windows Playtest', url });
+      await navigator.share({ title: msg("The Salt Mine 3 · Free Windows Playtest", "The Salt Mine 3 · Prueba gratuita en Windows"), url });
       return;
     } catch (error) {
       if (error.name === 'AbortError') return;
@@ -38,7 +69,7 @@ sendPc.addEventListener('click', async () => {
   }
   try {
     await navigator.clipboard.writeText(url);
-    pcFeedback.textContent = 'Link copied. Open it on your Windows PC.';
+    pcFeedback.textContent = msg("Link copied. Open it on your Windows PC.", "Enlace copiado. Ábrelo en tu PC con Windows.");
   } catch {
     pcManual.hidden = false;
     pcUrl.value = url;
@@ -53,6 +84,15 @@ if (window.top !== window.self) {
   invite.rel = 'noopener';
   steamInstall.target = '_blank';
   steamInstall.rel = 'noopener';
+  steamPlay.target = '_blank';
+  steamPlay.rel = 'noopener';
+}
+if (spanish) {
+  const friend = document.querySelector('#friend-link');
+  friend.href = 'https://steamcommunity.com/sharedfiles/filedetails/?id=3844332222';
+  friend.textContent = 'Guía para jugar en pareja';
+  friend.target = '_blank';
+  friend.rel = 'noopener';
 }
 const keys = new Set();
 const goal = 799;
@@ -69,15 +109,15 @@ const targetTenths = /^[1-9]\d{0,2}$/.test(rawTarget ?? '') && requestedTenths <
 const rawDistance = challengeParams.get('distance');
 const targetDistance = targetTenths === null && /^[1-9]\d?$/.test(rawDistance ?? '')
   ? Number(rawDistance) : null;
-const formatTime = tenths => `${(tenths / 10).toFixed(1)}s`;
+const formatTime = tenths => spanish ? (tenths / 10).toFixed(1).replace('.', ',') + ' s' : (tenths / 10).toFixed(1) + 's';
 
 if (matchMedia('(pointer: coarse)').matches) {
-  hint.textContent = 'Hold Left or Right to move. Tap Knockback near defenders.';
+  hint.textContent = msg("Hold Left or Right to move. Tap Knockback near defenders.", "Mantén pulsada una flecha para moverte. Toca Empujón cuando se acerque un defensor.");
 }
 if (targetTenths !== null) {
-  headline.textContent = `Beat ${formatTime(targetTenths)}`;
+  headline.textContent = msg(`Beat ${formatTime(targetTenths)}`, `Supera la marca de ${formatTime(targetTenths)}`);
 } else if (targetDistance !== null) {
-  headline.textContent = `Can you push past ${targetDistance}%?`;
+  headline.textContent = msg(`Can you push past ${targetDistance}%?`, `¿Puedes superar el ${targetDistance} %?`);
 }
 const isChallenge = targetTenths !== null || targetDistance !== null;
 if (isChallenge) {
@@ -99,19 +139,19 @@ let testingClock = false;
 function resetChallengeControls(canShare) {
   if (!shareButton) return;
   shareButton.hidden = !canShare;
-  shareButton.textContent = 'Challenge a friend';
+  shareButton.textContent = msg("Challenge a friend", "Reta a alguien");
   shareFallback.hidden = true;
   shareUrl.value = '';
 }
 
 function deliveredMessage(deliveredTenths) {
-  const delivery = `Delivered in ${formatTime(deliveredTenths)}.`;
-  if (targetDistance !== null) return `${delivery} You beat the ${targetDistance}% challenge!`;
-  if (targetTenths === null) return `${delivery} Can a friend beat your time?`;
+  const delivery = msg(`Delivered in ${formatTime(deliveredTenths)}.`, `Entrega en ${formatTime(deliveredTenths)}.`);
+  if (targetDistance !== null) return msg(`${delivery} You beat the ${targetDistance}% challenge!`, `${delivery} ¡Superaste el reto del ${targetDistance} %!`);
+  if (targetTenths === null) return msg(`${delivery} Can a friend beat your time?`, `${delivery} ¿Puede alguien mejorar tu tiempo?`);
   const difference = targetTenths - deliveredTenths;
-  if (difference > 0) return `${delivery} You beat the challenge by ${formatTime(difference)}!`;
-  if (difference === 0) return `${delivery} You matched the challenge time.`;
-  return `${delivery} The time to beat is ${formatTime(targetTenths)}.`;
+  if (difference > 0) return msg(`${delivery} You beat the challenge by ${formatTime(difference)}!`, `${delivery} ¡Mejoraste la marca por ${formatTime(difference)}!`);
+  if (difference === 0) return msg(`${delivery} You matched the challenge time.`, `${delivery} Igualaste el tiempo del reto.`);
+  return msg(`${delivery} The time to beat is ${formatTime(targetTenths)}.`, `${delivery} La marca a superar es ${formatTime(targetTenths)}.`);
 }
 
 function cartPercent(cart) {
@@ -119,11 +159,11 @@ function cartPercent(cart) {
 }
 
 function stoppedMessage(percent) {
-  const score = `You pushed the cart ${percent}% of the way.`;
-  if (targetDistance === null) return `${score} Stay close and knock defenders away.`;
-  if (percent > targetDistance) return `${score} You beat the ${targetDistance}% challenge!`;
-  if (percent === targetDistance) return `${score} You matched your friend's mark.`;
-  return `${score} Your friend's mark is ${targetDistance}%.`;
+  const score = msg(`You pushed the cart ${percent}% of the way.`, `Recorriste el ${percent} % del trayecto.`);
+  if (targetDistance === null) return msg(`${score} Stay close and knock defenders away.`, `${score} Quédate junto a la vagoneta y aparta a los defensores.`);
+  if (percent > targetDistance) return msg(`${score} You beat the ${targetDistance}% challenge!`, `${score} ¡Superaste el reto del ${targetDistance} %!`);
+  if (percent === targetDistance) return msg(`${score} You matched your friend's mark.`, `${score} Igualaste la marca del reto.`);
+  return msg(`${score} Your friend's mark is ${targetDistance}%.`, `${score} La marca del reto es ${targetDistance} %.`);
 }
 
 function begin() {
@@ -137,7 +177,7 @@ function begin() {
   resetChallengeControls(false);
   overlay.classList.remove('is-result', 'is-victory');
   canvas.focus({ preventScroll: true });
-  status.textContent = 'Stay close to the cart. Knock defenders away when they get near.';
+  status.textContent = msg("Stay close to the cart. Knock defenders away when they get near.", "Quédate junto a la vagoneta. Empuja a los defensores cuando se acerquen.");
   render();
 }
 
@@ -146,11 +186,11 @@ function finish(won) {
   state.deliveredTenths = won ? clamp(Math.round((maxTime - state.time) * 10), 1, maxTime * 10) : null;
   keys.clear();
   const progress = cartPercent(state.cart);
-  headline.textContent = won ? 'Salt delivered!' : 'The cart stopped.';
+  headline.textContent = won ? msg("Salt delivered!", "¡Sal entregada!") : msg("The cart stopped.", "La vagoneta se ha detenido.");
   hint.textContent = won
     ? deliveredMessage(state.deliveredTenths)
     : stoppedMessage(progress);
-  startButton.textContent = 'Play again';
+  startButton.textContent = msg("Play again", "Volver a jugar");
   const resultLink = new URL(winSteam.href);
   const outcome = won ? 'victory' : 'attempt';
   resultLink.searchParams.set('utm_content', isChallenge ? `challenge_${outcome}` : outcome);
@@ -161,13 +201,14 @@ function finish(won) {
   overlay.classList.add('is-result');
   overlay.classList.toggle('is-victory', won);
   overlay.hidden = false;
-  status.textContent = won ? '' : 'Round ended. Ready for another run.';
+  status.textContent = won ? '' : msg("Round ended. Ready for another run.", "Fin de la partida. Puedes volver a intentarlo.");
   startButton.focus();
 }
 
 shareButton?.addEventListener('click', async () => {
   const round = state;
   const link = new URL('https://tavoraz.github.io/The-Salt-Mine-3-Downloads/');
+  if (spanish) link.searchParams.set('lang', 'es');
   if (round.mode === 'won') {
     link.searchParams.set('beat', String(round.deliveredTenths));
   } else if (round.mode === 'lost' && cartPercent(round.cart) > 0) {
@@ -178,15 +219,15 @@ shareButton?.addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(link.href);
     if (state !== round) return;
-    shareButton.textContent = 'Link copied';
-    status.textContent = 'Challenge link copied.';
+    shareButton.textContent = msg("Link copied", "Enlace copiado");
+    status.textContent = msg("Challenge link copied.", "Enlace al reto copiado.");
   } catch {
     if (state !== round) return;
     shareFallback.hidden = false;
     shareUrl.value = link.href;
     shareUrl.focus({ preventScroll: true });
     shareUrl.select();
-    status.textContent = 'Copy the selected challenge link.';
+    status.textContent = msg("Copy the selected challenge link.", "Copia el enlace seleccionado para compartir el reto.");
   }
 });
 
@@ -202,7 +243,7 @@ function knockback() {
     burst(enemy.x, trackY - 35, '#ffb66c');
     hits++;
   }
-  status.textContent = hits ? `Pushed back ${hits} defender${hits === 1 ? '' : 's'}.` : 'Knockback used. Wait for a defender to get closer.';
+  status.textContent = hits ? msg(`Pushed back ${hits} defender${hits === 1 ? '' : 's'}.`, `¡${hits === 1 ? 'Un defensor apartado' : hits + ' defensores apartados'}!`) : msg("Knockback used. Wait for a defender to get closer.", "Has usado el empujón. Espera a tener un defensor más cerca.");
 }
 
 function burst(x, y, color) {
@@ -235,7 +276,7 @@ function update(dt) {
       state.invulnerable = 1.65;
       enemy.x += gap > 0 ? -80 : 80;
       burst(state.player, trackY - 37, '#ff826d');
-      status.textContent = 'A defender landed a hit.';
+      status.textContent = msg("A defender landed a hit.", "Un defensor te ha golpeado.");
     }
   }
   state.enemies = state.enemies.filter(enemy => enemy.x < 910);
@@ -290,7 +331,7 @@ function background() {
   rect(0, 292, 900, 6, '#a1a0a0'); rect(0, 326, 900, 6, '#6b6c71');
   rect(798, 225, 63, 102, '#4b3f36'); rect(804, 231, 51, 89, '#23333b');
   rect(821, 237, 15, 8, '#ffd280'); rect(799, 221, 61, 8, '#c79a56');
-  ctx.font = 'bold 15px system-ui'; ctx.fillStyle = '#ffe2a6'; ctx.textAlign = 'center'; ctx.fillText('LIFT', 830, 269);
+  ctx.font = 'bold 15px system-ui'; ctx.fillStyle = '#ffe2a6'; ctx.textAlign = 'center'; ctx.fillText(msg("LIFT", "ASCENSOR"), 830, 269);
 }
 
 function hero(x, enemy, stunned) {
@@ -313,12 +354,12 @@ function render() {
   rect(22, 55, 340 * fraction, 6, '#ffd280');
   if (targetDistance !== null) rect(22 + 340 * targetDistance / 100 - 1, 52, 3, 12, '#88e3f5');
   ctx.textAlign = 'left'; ctx.font = 'bold 17px system-ui'; ctx.fillStyle = '#fce9bd';
-  ctx.fillText(blocked ? 'CART CONTESTED' : 'DELIVER THE SALT', 34, 42);
-  ctx.textAlign = 'right'; ctx.fillText(`${Math.ceil(Math.max(0, time))}s  ·  ${health}/3 HP`, 878, 42);
+  ctx.fillText(blocked ? msg("CART CONTESTED", "VAGONETA EN DISPUTA") : msg("DELIVER THE SALT", "ENTREGA LA SAL"), 34, 42);
+  ctx.textAlign = 'right'; ctx.fillText(`${Math.ceil(Math.max(0, time))}s  ·  ${health}/3 ${msg("HP", "PV")}`, 878, 42);
   ctx.font = '15px system-ui'; ctx.fillStyle = '#bbd5df';
-  ctx.fillText(cooldown ? `Knockback ${cooldown.toFixed(1)}s` : 'Knockback ready', 878, 64);
-  const hpLabel = `${Math.ceil(Math.max(0, time))}s · ${health}/3 HP`;
-  const pulseLabel = cooldown ? `Knockback ${cooldown.toFixed(1)}s` : 'Knockback ready';
+  ctx.fillText(cooldown ? msg(`Knockback ${cooldown.toFixed(1)}s`, `Empujón ${cooldown.toFixed(1)} s`) : msg("Knockback ready", "Empujón listo"), 878, 64);
+  const hpLabel = `${Math.ceil(Math.max(0, time))}s · ${health}/3 ${msg("HP", "PV")}`;
+  const pulseLabel = cooldown ? msg(`Knockback ${cooldown.toFixed(1)}s`, `Empujón ${cooldown.toFixed(1)} s`) : msg("Knockback ready", "Empujón listo");
   if (phoneStatus.textContent !== hpLabel) phoneStatus.textContent = hpLabel;
   if (phonePulse.textContent !== pulseLabel) phonePulse.textContent = pulseLabel;
   circle(cart - 20, trackY + 10, 11, '#13181e'); circle(cart + 20, trackY + 10, 11, '#13181e');

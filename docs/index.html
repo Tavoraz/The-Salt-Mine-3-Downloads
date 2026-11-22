@@ -67,49 +67,53 @@
   .pc-route input{display:block;width:100%;padding:.5rem;color:var(--ink);background:#142029;border:1px solid #657480;border-radius:5px}
   .pc-route .pc-feedback{display:block;color:var(--muted)}
   #overlay:has(.pc-manual:not([hidden])){position:relative;inset:auto}
+  #language{font-size:.9rem;text-decoration:underline;text-underline-offset:3px}
+  #pc-language{font-size:.85rem;margin-top:.4rem}
 </style>
 <main>
-  <header><a href="https://avoraz.com/"><img src="media/crystal-crest.png" width="32" height="32" alt=""><strong>THE SALT MINE 3</strong></a><span>A FREE BROWSER MINI-GAME BY AVORAZ</span></header>
+  <header><a href="https://avoraz.com/"><img src="media/crystal-crest.png" width="32" height="32" alt=""><strong>THE SALT MINE 3</strong></a><span data-es="UN MINIJUEGO GRATIS DE AVORAZ">A FREE BROWSER MINI-GAME BY AVORAZ</span><a id="language" lang="es" hreflang="es" href="?lang=es">Español</a></header>
   <h1>Cart Run</h1>
-  <p class="intro">Stay close to the cart and push it to the lift. Knock defenders away before they reach you.</p>
-  <section class="arena" aria-label="Cart Run game">
-    <canvas id="mine" width="900" height="416" tabindex="0" aria-label="Cobalt player, salt cart, and Ember defenders on the mine track"></canvas>
+  <p class="intro" data-es="Escolta la vagoneta hasta el ascensor. Cuando se acerquen los defensores, empújalos para abrirte paso.">Stay close to the cart and push it to the lift. Knock defenders away before they reach you.</p>
+  <section class="arena" aria-label="Cart Run game" data-es-label="Partida de Cart Run">
+    <canvas id="mine" width="900" height="416" tabindex="0" aria-label="Cobalt player, salt cart, and Ember defenders on the mine track" data-es-label="Jugador de Cobalto, vagoneta de sal y defensores de Brasa en las vías de la mina"></canvas>
     <div id="overlay" class="overlay"><div>
-      <h2 id="headline">One cart. Thirty seconds.</h2>
-      <p id="hint">Move with ← and →. Press Space to knock back nearby defenders.</p>
+      <h2 id="headline" data-es="Una vagoneta. Treinta segundos.">One cart. Thirty seconds.</h2>
+      <p id="hint" data-es="Muévete con ← y →. Pulsa Espacio para empujar a los defensores cercanos.">Move with ← and →. Press Space to knock back nearby defenders.</p>
       <div class="result-actions">
-        <button id="start-btn" type="button" aria-describedby="hint">Start Cart Run</button>
-        <button id="share-challenge" type="button" hidden>Challenge a friend</button>
-        <a id="win-steam" class="cta win-steam" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=victory#game_area_purchase" target="_blank" rel="noopener">Join free on Steam</a>
-        <a id="win-download" class="cta win-download" href="https://avoraz.com/download?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=cart_run_win" target="_blank" rel="noopener" hidden>Direct Windows download</a>
+        <button id="start-btn" type="button" aria-describedby="hint" data-es="Jugar">Start Cart Run</button>
+        <button id="share-challenge" type="button" hidden data-es="Reta a alguien">Challenge a friend</button>
+        <a id="win-steam" class="cta win-steam" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=victory#game_area_purchase" target="_blank" rel="noopener" data-es="Jugar gratis en Steam">Join free on Steam</a>
+        <a id="win-download" class="cta win-download" href="https://avoraz.com/download?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=cart_run_win" target="_blank" rel="noopener" hidden data-es="Descarga para Windows">Direct Windows download</a>
       </div>
       <div id="challenge-fallback" class="challenge-fallback" hidden>
-        <label for="challenge-url">Copy this challenge link</label>
+        <label for="challenge-url" data-es="Copia este enlace al reto">Copy this challenge link</label>
         <input id="challenge-url" type="url" readonly>
       </div>
       <div id="result-pc-route"></div>
     </div></div>
   </section>
-  <p class="phone-hud"><span id="phone-status">30s · 3/3 HP</span><span id="phone-pulse">Knockback ready</span></p>
-  <div class="controls" aria-label="Touch and mouse controls">
-    <button id="left" type="button" aria-label="Move left">← Left</button>
-    <button id="right" type="button" aria-label="Move right">Right →</button>
-    <button id="pulse" type="button">Knockback</button>
+  <p class="phone-hud"><span id="phone-status">30s · 3/3 HP</span><span id="phone-pulse" data-es="Empujón listo">Knockback ready</span></p>
+  <div class="controls" aria-label="Touch and mouse controls" data-es-label="Controles táctiles y de ratón">
+    <button id="left" type="button" aria-label="Move left" data-es-label="Mover a la izquierda" data-es="← Izquierda">← Left</button>
+    <button id="right" type="button" aria-label="Move right" data-es-label="Mover a la derecha" data-es="Derecha →">Right →</button>
+    <button id="pulse" type="button" data-es="Empujón">Knockback</button>
   </div>
-  <p id="status" class="status" aria-live="polite">Ready to start.</p>
+  <p id="status" class="status" aria-live="polite" data-es="Todo listo.">Ready to start.</p>
   <div class="after">
-    <div><strong>Try the full game</strong><p><a href="https://avoraz.com/play/push-the-cart?utm_source=cart_run" target="_blank" rel="noopener">Take a friend into Push the Cart on Windows.</a> One of you can guard the cart while the other clears the track.</p></div>
+    <div><strong data-es="¿Y si escoltáis la vagoneta juntos?">Try the full game</strong><p><a href="https://avoraz.com/play/push-the-cart?utm_source=cart_run" target="_blank" rel="noopener" data-es="Prueba el modo de escolta en Windows con un amigo.">Take a friend into Push the Cart on Windows.</a> <span data-es="Uno protege la vagoneta mientras el otro despeja las vías.">One of you can guard the cart while the other clears the track.</span></p></div>
     <div id="page-pc-route">
-      <nav aria-label="Full Windows game"><a id="page-steam" class="cta" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=page#game_area_purchase" target="_blank" rel="noopener">Join free on Steam</a><a href="https://avoraz.com/download?utm_campaign=first_players" target="_blank" rel="noopener">Direct Windows download</a><a id="friend-link" href="play-together.html">Bring a friend</a></nav>
+      <nav aria-label="Full Windows game" data-es-label="Juego completo para Windows"><a id="page-steam" class="cta" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=page#game_area_purchase" target="_blank" rel="noopener" data-es="Jugar gratis en Steam">Join free on Steam</a><a href="https://avoraz.com/download?utm_campaign=first_players" target="_blank" rel="noopener" data-es="Descarga para Windows">Direct Windows download</a><a id="friend-link" href="play-together.html" data-es="Invitar a un amigo">Bring a friend</a></nav>
       <div id="pc-route" class="pc-route">
-        <a id="steam-install" href="steam://install/5579000" hidden>Already joined? Install in Steam</a>
-        <button id="send-pc" type="button" hidden>Send the Playtest to my PC</button>
+        <a id="steam-install" href="steam://install/5579000" hidden data-es="¿Ya te uniste? Instálalo en Steam">Already joined? Install in Steam</a>
+        <a id="steam-play" href="steam://rungameid/5579000" hidden data-es="¿Ya lo instalaste? Abrir el juego">Already installed? Play now</a>
+        <button id="send-pc" type="button" hidden data-es="Enviar la prueba a mi PC">Send the Playtest to my PC</button>
         <span id="pc-feedback" class="pc-feedback" role="status"></span>
-        <div id="pc-manual" class="pc-manual" hidden><label for="pc-url">Copy this link and open it on your PC</label><input id="pc-url" type="url" readonly></div>
+        <div id="pc-manual" class="pc-manual" hidden><label for="pc-url" data-es="Copia el enlace y ábrelo en tu PC">Copy this link and open it on your PC</label><input id="pc-url" type="url" readonly></div>
       </div>
     </div>
   </div>
-  <footer>Cart Run is a solo browser mini-game inspired by Push the Cart. <a href="https://tavoraz.itch.io/the-salt-mine-3/devlog.rss">Follow releases via RSS</a> · <a href="https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/issues/new/choose">Send public first-match feedback</a></footer>
+  <p id="pc-language" lang="es" hidden>El juego completo para Windows está en inglés.</p>
+  <footer><span data-es="Cart Run es un minijuego para una persona inspirado en el modo de escolta del juego completo.">Cart Run is a solo browser mini-game inspired by Push the Cart.</span> <a href="https://tavoraz.itch.io/the-salt-mine-3/devlog.rss" data-es="Novedades por RSS">Follow releases via RSS</a> · <a href="https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/issues/new/choose" data-es="Comentar mi primera partida">Send public first-match feedback</a></footer>
 </main>
-<script src="cart-run.js?v=playtest-handoff-1"></script>
+<script src="cart-run.js?v=es-cart-2"></script>
 </html>

@@ -5,9 +5,16 @@ const requestedLanguage = pageUrl.searchParams.get('lang');
 const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^es(?:-|$)/i.test(navigator.language));
 const msg = (english, espanol) => spanish ? espanol : english;
 // Keep attribution at the publisher level. A shared score starts a fresh visit.
-const publisher = pageUrl.searchParams.get('via') === 'elenagames' ? 'elenagames' :
+const portal = pageUrl.searchParams.get('via');
+const publisher = ['elenagames','game16'].includes(portal) ? portal :
   (window.self !== window.top && /^https:\/\/(?:www\.)?slowden\.com(?:\/|$)/.test(document.referrer) ? 'slowden' : 'cart_run');
 const languageLink = document.querySelector('#language');
+const japanPortal = publisher === 'game16';
+document.querySelector('#jp-controls').hidden = !japanPortal;
+const orchardGuide = document.querySelector('#orchard-guide');
+const orchardUrl = new URL(orchardGuide.href);
+orchardUrl.searchParams.set('via', publisher);
+orchardGuide.href = orchardUrl.href;
 const alternate = new URL(pageUrl);
 alternate.searchParams.set('lang', spanish ? 'en' : 'es');
 languageLink.href = alternate.href;
@@ -23,7 +30,10 @@ for (const anchor of document.querySelectorAll('a[href]')) {
   const url = new URL(anchor.href);
   if (url.hostname === 'store.steampowered.com') {
     url.searchParams.set('utm_source', publisher);
-    if (spanish) {
+    if (japanPortal && !spanish) {
+      url.searchParams.set('l', 'japanese');
+      url.searchParams.set('utm_campaign', 'cart_run_jp');
+    } else if (spanish) {
       url.searchParams.set('l', 'spanish');
       url.searchParams.set('utm_campaign', 'cart_run_es');
     }
@@ -62,7 +72,7 @@ steamPlay.hidden = !onWindows;
 sendPc.hidden = onWindows;
 if (typeof navigator.share !== 'function') sendPc.textContent = msg("Copy Playtest link for my PC", "Copiar el enlace para mi PC");
 sendPc.addEventListener('click', async () => {
-  const url = spanish ? spanishSteam : 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart';
+  const url = spanish ? spanishSteam : japanPortal ? document.querySelector('#page-steam').href : 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart';
   pcFeedback.textContent = '';
   pcManual.hidden = true;
   if (typeof navigator.share === 'function') {

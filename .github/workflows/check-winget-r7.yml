@@ -29,7 +29,11 @@ jobs:
               $winget = Join-Path $installer.InstallLocation 'winget.exe'
             }
           }
-          if (!$winget -or !(Test-Path -LiteralPath $winget)) {
+          $currentVersion = [version]'0.0'
+          if ($winget -and (Test-Path -LiteralPath $winget)) {
+            $currentVersion = [version]((& $winget --version).TrimStart('v'))
+          }
+          if ($currentVersion -lt [version]'1.28.0') {
             Install-Module Microsoft.WinGet.Client -Scope CurrentUser -Repository PSGallery -Force
             Repair-WinGetPackageManager -Latest
             $winget = Join-Path (Get-AppxPackage Microsoft.DesktopAppInstaller).InstallLocation 'winget.exe'

@@ -4,7 +4,8 @@ The Salt Mine 3 is an online fantasy battler by Avoraz. Pick one of nine heroes 
 
 [Join the free Steam Playtest](https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github&utm_medium=readme&utm_campaign=steam_playtest_launch#game_area_purchase) · [Direct Windows installer](https://avoraz.com/download) · [Play in the itch app](https://tavoraz.itch.io/the-salt-mine-3#download) · [Latest release and checksum](https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/releases/latest)
 
-- **Steam.** Accept your friend’s invite on the store page or select **Request Access** to join on your own. Once you have access, install **The Salt Mine 3 Playtest** from your Library.
+- **New to the Steam Playtest?** Select **Join the Playtest** on the store page, or accept a friend’s invite in Steam notifications. The Playtest is added to your Library.
+- **Already joined?** [Install or open the Playtest on Windows](https://avoraz.com/download#steam-playtest). In your Steam Library, choose **The Salt Mine 3 Playtest**, then **Install** and **Play**.
 - **itch app.** Open the game in the itch app, choose **Install**, select the file ending in `windows-itch-app.zip`, then choose **Launch**. The app handles extraction and patches.
 - **Direct Windows download.** Open the Windows setup and choose **Install**.
 

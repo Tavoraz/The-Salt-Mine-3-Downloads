@@ -69,6 +69,11 @@
   #overlay:has(.pc-manual:not([hidden])){position:relative;inset:auto}
   #language{font-size:.9rem;text-decoration:underline;text-underline-offset:3px}
   #pc-language{font-size:.85rem;margin-top:.4rem}
+  #watch-cart{border-block-start:1px solid var(--edge);margin-block:1rem;scroll-margin-block:1rem}
+  #watch-cart summary{cursor:pointer;color:var(--gold);padding:.7rem 0;font-weight:650}
+  #watch-cart summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  #watch-cart video{display:block;width:100%;max-width:48rem;height:auto;background:#080d11;border-radius:5px}
+  #watch-cart p{max-width:65ch;margin:.55rem 0;color:var(--muted)}
 </style>
 <main>
   <header><a href="https://avoraz.com/"><img src="media/crystal-crest.png" width="32" height="32" alt=""><strong>THE SALT MINE 3</strong></a><span data-es="UN MINIJUEGO GRATIS DE AVORAZ">A FREE BROWSER MINI-GAME BY AVORAZ</span><a id="language" lang="es" hreflang="es" href="?lang=es">Español</a></header>
@@ -113,6 +118,17 @@
       </div>
     </div>
   </div>
+  <details id="watch-cart">
+    <summary data-es="Ver una entrega en el juego de PC · 9 s">Watch a cart delivery in the PC game · 9 sec</summary>
+    <video controls playsinline preload="none" width="960" height="540" poster="media/clear-the-tracks.webp" aria-label="Vessa clears the tracks" data-es-label="Vessa despeja las vías" aria-describedby="clip-caption">
+      <source src="media/clear-the-tracks.mp4" type="video/mp4">
+      <track kind="captions" src="media/clear-the-tracks.en.vtt" srclang="en" label="English">
+      <track kind="captions" src="media/clear-the-tracks.es.vtt" srclang="es" label="Español">
+      <a href="media/clear-the-tracks.mp4" data-es="Ver el vídeo">Watch the video</a>
+    </video>
+    <p id="clip-caption" data-es="Vessa hace estallar su barril junto a un rival. La vagoneta de cristales llega al elevador. Partida preparada con un rival de prueba, controles programados y audio del juego editado. Los nuevos efectos se muestran en una versión en desarrollo.">Vessa sets off her keg beside a defender. The crystal cart reaches the lift. Staged gameplay with a test opponent, scripted inputs and edited game audio. The new effects are shown in a development build.</p>
+    <p><a href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=cart_run&amp;utm_medium=browser_game&amp;utm_campaign=steam_playtest_launch&amp;utm_content=cart_delivery_clip#game_area_purchase" target="_blank" rel="noopener" data-es="Juega a Push the Cart en la prueba gratuita de Steam">Play Push the Cart in the free Steam Playtest</a></p>
+  </details>
   <p id="pc-language" lang="es" hidden>El juego completo para Windows está en inglés. ¿Prefieres explorar? <a id="orchard-guide" href="primera-mision.html" target="_blank" rel="noopener">Consigue tu primera reliquia con Nell</a>.</p>
   <footer><span data-es="Cart Run es un minijuego para una persona inspirado en el modo de escolta del juego completo.">Cart Run is a solo browser mini-game inspired by Push the Cart.</span> <a href="https://tavoraz.itch.io/the-salt-mine-3/devlog.rss" data-es="Novedades por RSS">Follow releases via RSS</a> · <a href="https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/issues/new/choose" data-es="Comentar mi primera partida">Send public first-match feedback</a></footer>
 </main>

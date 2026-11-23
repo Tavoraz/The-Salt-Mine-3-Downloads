@@ -15,6 +15,7 @@ Steam and the itch app deliver their own updates. With a direct Windows installa
 ## Play, bring a friend, or follow along
 
 - [Play Cart Run in your browser](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/) — push the cart for up to 30 seconds, then challenge a friend to beat your distance or delivery time.
+- [Watch Vessa clear the track](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/#watch-cart) in an 8.7-second development preview, then try Push the Cart in the free Windows Playtest.
 - [Plan a match with friends](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html) — pick a mode, share an optional local time, and find the steps to group up in Saltwake.
 - [Follow release notes via RSS](https://tavoraz.itch.io/the-salt-mine-3/devlog.rss) — add the feed to your reader for updates.
 - [Send first-match feedback](https://github.com/Tavoraz/The-Salt-Mine-3-Downloads/issues/new/choose) — tell us where you got stuck or what would bring you back. Reports are public and require a GitHub account.

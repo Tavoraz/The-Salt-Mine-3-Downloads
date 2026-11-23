@@ -9,6 +9,15 @@ const portal = pageUrl.searchParams.get('via');
 const publisher = ['elenagames','game16'].includes(portal) ? portal :
   (window.self !== window.top && /^https:\/\/(?:www\.)?slowden\.com(?:\/|$)/.test(document.referrer) ? 'slowden' : 'cart_run');
 const languageLink = document.querySelector('#language');
+const cartPreview = document.getElementById('watch-cart');
+function openLinkedPreview() {
+  if (location.hash === '#watch-cart') cartPreview.open = true;
+}
+openLinkedPreview();
+window.addEventListener('hashchange', openLinkedPreview);
+cartPreview.addEventListener('toggle', () => {
+  if (!cartPreview.open) cartPreview.querySelector('video').pause();
+});
 const japanPortal = publisher === 'game16';
 document.querySelector('#jp-controls').hidden = !japanPortal;
 const orchardGuide = document.querySelector('#orchard-guide');
@@ -395,6 +404,7 @@ function render() {
 const mapped = { ArrowLeft: 'left', ArrowRight: 'right', KeyA: 'left', KeyD: 'right' };
 window.addEventListener('keydown', event => {
   if (event.altKey || event.ctrlKey || event.metaKey || state.mode !== 'playing') return;
+  if (event.target instanceof Node && cartPreview.contains(event.target)) return;
   if (mapped[event.code]) { event.preventDefault(); keys.add(mapped[event.code]); }
   if (event.code === 'Space' && event.target?.tagName !== 'BUTTON') { event.preventDefault(); if (!event.repeat) knockback(); }
 });

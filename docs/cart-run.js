@@ -6,7 +6,7 @@ const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^e
 const msg = (english, espanol) => spanish ? espanol : english;
 // Keep attribution at the publisher level. A shared score starts a fresh visit.
 const portal = pageUrl.searchParams.get('via');
-const publisher = ['elenagames','game16','ottersplay'].includes(portal) ? portal :
+const publisher = ['antgames','elenagames','game16','ottersplay'].includes(portal) ? portal :
   (window.self !== window.top && /^https:\/\/(?:www\.)?slowden\.com(?:\/|$)/.test(document.referrer) ? 'slowden' : 'cart_run');
 const languageLink = document.querySelector('#language');
 const cartPreview = document.getElementById('watch-cart');
@@ -20,6 +20,20 @@ cartPreview.addEventListener('toggle', () => {
 });
 const japanPortal = publisher === 'game16';
 document.querySelector('#jp-controls').hidden = !japanPortal;
+const chinese = !requestedLanguage && !japanPortal && /^zh(?:-|$)/i.test(navigator.language);
+const traditionalChinese = chinese && /-(Hant|TW|HK|MO)(?:-|$)/i.test(navigator.language);
+if (chinese) {
+  const language = traditionalChinese ? 'zh-Hant' : 'zh-Hans';
+  const intro = document.querySelector('.intro');
+  intro.lang = language;
+  intro.textContent = traditionalChinese
+    ? '按 Start Cart Run 開始。用方向鍵跟緊礦車，按空白鍵擊退守衛。手機可點畫面上的箭頭和 Knockback。完整版 Windows 遊戲的介面為英文。'
+    : '点 Start Cart Run 开始。用方向键跟紧矿车，按空格键击退守卫。手机可点屏幕上的箭头和 Knockback。完整版 Windows 游戏的界面为英文。';
+  for (const link of document.querySelectorAll('#page-steam, #win-steam')) {
+    link.lang = language;
+    link.textContent = traditionalChinese ? '免費加入 Steam 遊戲測試' : '免费加入 Steam 游戏测试';
+  }
+}
 const orchardGuide = document.querySelector('#orchard-guide');
 const orchardUrl = new URL(orchardGuide.href);
 orchardUrl.searchParams.set('via', publisher);
@@ -45,6 +59,8 @@ for (const anchor of document.querySelectorAll('a[href]')) {
     } else if (spanish) {
       url.searchParams.set('l', 'spanish');
       url.searchParams.set('utm_campaign', 'cart_run_es');
+    } else if (chinese) {
+      url.searchParams.set('l', traditionalChinese ? 'tchinese' : 'schinese');
     }
     anchor.href = url.href;
   } else if (spanish && url.hostname === 'avoraz.com' && (url.pathname === '/' || url.pathname === '/download')) {
@@ -52,7 +68,8 @@ for (const anchor of document.querySelectorAll('a[href]')) {
     anchor.href = url.href;
   }
 }
-const spanishSteam = `https://store.steampowered.com/app/5578970/?l=spanish&utm_source=${publisher}&utm_medium=browser_game&utm_campaign=cart_run_es&utm_content=send_to_pc#game_area_purchase`;
+const localizedPcLink = new URL(document.querySelector('#page-steam').href);
+localizedPcLink.searchParams.set('utm_content', 'send_to_pc');
 
 const canvas = document.querySelector('#mine');
 const ctx = canvas.getContext('2d');
@@ -83,7 +100,7 @@ if (typeof navigator.share !== 'function') sendPc.textContent = msg("Copy Playte
 sendPc.addEventListener('click', async () => {
   const pcPlan = new URL('https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart');
   if (publisher !== 'cart_run') pcPlan.searchParams.set('publisher', publisher);
-  const url = spanish ? spanishSteam : japanPortal ? document.querySelector('#page-steam').href : pcPlan.href;
+  const url = spanish || japanPortal || chinese ? localizedPcLink.href : pcPlan.href;
   pcFeedback.textContent = '';
   pcManual.hidden = true;
   if (typeof navigator.share === 'function') {

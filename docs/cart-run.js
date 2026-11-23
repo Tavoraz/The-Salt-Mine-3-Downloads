@@ -6,8 +6,14 @@ const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^e
 const msg = (english, espanol) => spanish ? espanol : english;
 // Keep attribution at the publisher level. A shared score starts a fresh visit.
 const portal = pageUrl.searchParams.get('via');
-const publisher = ['antgames','elenagames','game16','ottersplay'].includes(portal) ? portal :
-  (window.self !== window.top && /^https:\/\/(?:www\.)?slowden\.com(?:\/|$)/.test(document.referrer) ? 'slowden' : 'cart_run');
+const publishers = ['antgames', 'elenagames', 'game16', 'gogashare', 'ottersplay'];
+const embedPublishers = new Map([
+  ['https://slowden.com', 'slowden'],
+  ['https://www.slowden.com', 'slowden'],
+  ['https://gogashare.u-zu.co.jp', 'gogashare'],
+]);
+const embedOrigin = window.self !== window.top && document.referrer ? new URL(document.referrer).origin : '';
+const publisher = publishers.includes(portal) ? portal : (embedPublishers.get(embedOrigin) || 'cart_run');
 const languageLink = document.querySelector('#language');
 const cartPreview = document.getElementById('watch-cart');
 function openLinkedPreview() {
@@ -18,8 +24,15 @@ window.addEventListener('hashchange', openLinkedPreview);
 cartPreview.addEventListener('toggle', () => {
   if (!cartPreview.open) cartPreview.querySelector('video').pause();
 });
-const japanPortal = publisher === 'game16';
+const japanPortal = publisher === 'game16' || (publisher === 'gogashare' &&
+  (requestedLanguage === 'ja' || (!requestedLanguage && /^ja(?:-|$)/i.test(navigator.language))));
 document.querySelector('#jp-controls').hidden = !japanPortal;
+if (japanPortal && !spanish) {
+  for (const link of document.querySelectorAll('#page-steam, #win-steam')) {
+    link.lang = 'ja';
+    link.textContent = 'Windows版をSteamで無料プレイ';
+  }
+}
 const chinese = !requestedLanguage && !japanPortal && /^zh(?:-|$)/i.test(navigator.language);
 const traditionalChinese = chinese && /-(Hant|TW|HK|MO)(?:-|$)/i.test(navigator.language);
 if (chinese) {

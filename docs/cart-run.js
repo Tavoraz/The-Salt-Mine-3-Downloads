@@ -6,7 +6,7 @@ const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^e
 const msg = (english, espanol) => spanish ? espanol : english;
 // Keep attribution at the publisher level. A shared score starts a fresh visit.
 const portal = pageUrl.searchParams.get('via');
-const publisher = ['elenagames','game16'].includes(portal) ? portal :
+const publisher = ['elenagames','game16','ottersplay'].includes(portal) ? portal :
   (window.self !== window.top && /^https:\/\/(?:www\.)?slowden\.com(?:\/|$)/.test(document.referrer) ? 'slowden' : 'cart_run');
 const languageLink = document.querySelector('#language');
 const cartPreview = document.getElementById('watch-cart');
@@ -81,7 +81,9 @@ steamPlay.hidden = !onWindows;
 sendPc.hidden = onWindows;
 if (typeof navigator.share !== 'function') sendPc.textContent = msg("Copy Playtest link for my PC", "Copiar el enlace para mi PC");
 sendPc.addEventListener('click', async () => {
-  const url = spanish ? spanishSteam : japanPortal ? document.querySelector('#page-steam').href : 'https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart';
+  const pcPlan = new URL('https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=cart_run_pc#mode=cart');
+  if (publisher !== 'cart_run') pcPlan.searchParams.set('publisher', publisher);
+  const url = spanish ? spanishSteam : japanPortal ? document.querySelector('#page-steam').href : pcPlan.href;
   pcFeedback.textContent = '';
   pcManual.hidden = true;
   if (typeof navigator.share === 'function') {

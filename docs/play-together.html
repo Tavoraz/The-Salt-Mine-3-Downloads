@@ -101,7 +101,7 @@
     #group-instructions ol, #group-instructions ul { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
     #group-instructions li + li { margin-top: .52rem; }
     #watchbadge { margin-block: 1rem; border-block: 1px solid var(--line); scroll-margin-block: 1rem; }
-    #watchbadge summary { padding: .75rem 0; cursor: pointer; color: var(--gold); font-weight: 700; }
+    #watchbadge > summary, #with-friends > summary { padding: .75rem 0; cursor: pointer; color: var(--gold); font-weight: 700; }
     #watchbadge .orchard-map { display: block; width: 100%; max-width: 37rem; height: auto; border-radius: .4rem; }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
@@ -165,6 +165,7 @@
         </div>
         <p id="solo-steps"><strong>Prefer a solo round?</strong> Pick a hero, select <strong>Quick battleground</strong>, then choose <strong id="solo-mode">Push the Cart</strong>. Join and accept the ready check. When the lobby opens, select <strong>Lock in</strong>. AI heroes fill empty slots.</p>
         <p id="solo-vault-steps" hidden><strong>Exploring solo?</strong> At the lantern arch, select <strong>Enter the Vault</strong>.</p>
+        <details id="with-friends" hidden><summary>Playing with friends?</summary></details>
       </div>
       <div class="actions" id="share-controls" hidden>
         <button type="button" id="share">Copy invite link</button>
@@ -225,7 +226,7 @@
             <a id="steam-play" href="steam://run/5579000">Launch installed game</a>
           </div>
           <p class="hint" id="remote-install" hidden><strong>Already joined?</strong> With Steam running on your Windows PC, <a href="https://steamcommunity.com/my/games/?tab=all" target="_blank" rel="noopener">open your Steam library</a> here with the same account. Search for <strong>The Salt Mine 3 Playtest</strong> and select <strong>Install</strong>. If your PC is offline, the Playtest stays in your library for later.</p>
-          <p class="hint"><strong>Friend sent you a Steam invite?</strong> Accept it from Steam’s notification bell or the store page. After joining, you’ll find <strong>The Salt Mine 3 Playtest</strong> in your Steam Library on Windows.</p>
+          <p class="hint" id="friend-steam-tip"><strong>Friend sent you a Steam invite?</strong> Accept it from Steam’s notification bell or the store page. After joining, you’ll find <strong>The Salt Mine 3 Playtest</strong> in your Steam Library on Windows.</p>
           <span class="hint" id="library-feedback" role="status"></span>
         </div>
       </div>
@@ -251,6 +252,11 @@
     const recipientSteps = document.getElementById("recipient-steps");
     const recipientActions = document.getElementById("recipient-actions");
     const soloSteps = document.getElementById("solo-steps");
+    const withFriends = document.getElementById("with-friends");
+    const pageHeading = document.querySelector("h1");
+    const plannerHeading = pageHeading.textContent;
+    const soloLead = soloSteps.querySelector("strong");
+    const soloLeadText = soloLead.textContent;
     const soloVaultSteps = document.getElementById("solo-vault-steps");
     const soloMode = document.getElementById("solo-mode");
     const groupSteps = document.getElementById("group-steps");
@@ -264,7 +270,10 @@
     const downloadLink = document.getElementById("download");
     const steamLink = document.getElementById("steam");
     const originalSteamUrl = steamLink.href;
-    const inviteSource = new URLSearchParams(location.search).get("via");
+    const entryParams = new URLSearchParams(location.search);
+    const inviteSource = entryParams.get("via");
+    const publisher = entryParams.get("publisher");
+    const cartSource = ["ottersplay", "slowden", "elenagames", "game16"].includes(publisher) ? publisher : "cart_run";
     const when = document.getElementById("when");
     const title = document.getElementById("plan-mode");
     const time = document.getElementById("plan-time");
@@ -324,10 +333,19 @@
     }
 
     function showRecipientPlan(isRecipient, date = null) {
+      const ownCart = isRecipient && inviteSource === "cart_run_pc" && !date && selectedPlan().mode === "cart";
+      pageHeading.textContent = ownCart ? "Your first cart match" : plannerHeading;
+      soloLead.textContent = ownCart ? "Start a solo match." : soloLeadText;
+      label.textContent = ownCart ? "Your battleground" : isRecipient ? "Shared plan" : "Your plan";
+      withFriends.hidden = !ownCart;
+      document.getElementById("friend-steam-tip").hidden = ownCart;
       if (!isRecipient) intro.textContent = senderIntro;
+      else if (ownCart) intro.textContent = "Join the free Playtest on Steam, then open The Salt Mine 3 Playtest in your Windows library. You can start solo.";
       else if (hasEnded(date)) intro.textContent = "That play window ended. You can still play now or share a fresh invite with a friend.";
       else if (date) intro.textContent = "The start time is shown in your local time zone.";
       else intro.textContent = "Join whenever you’re both ready.";
+      if (ownCart) withFriends.append(groupInstructions);
+      else if (isRecipient) recipientSteps.insertBefore(groupInstructions, soloSteps);
       if (planner.classList.contains("invite-recipient") === isRecipient) return;
       planner.classList.toggle("invite-recipient", isRecipient);
       recipientSteps.hidden = !isRecipient;
@@ -339,11 +357,9 @@
       steamLink.classList.toggle("secondary", handoff);
       if (handoff) recipientActions.after(copyFeedback);
       else shareControls.after(copyFeedback);
-      label.textContent = isRecipient ? "Shared plan" : "Your plan";
       if (isRecipient) {
         planner.prepend(summary);
         recipientActions.append(installOptions);
-        recipientSteps.insertBefore(groupInstructions, soloSteps);
       } else {
         planner.append(summary);
         groupSteps.prepend(groupInstructions);
@@ -388,7 +404,7 @@
         }
       }
       if (plan.mode === "cart" && inviteSource === "cart_run_pc") {
-        steamUrl.searchParams.set("utm_source", "cart_run");
+        steamUrl.searchParams.set("utm_source", cartSource);
         steamUrl.searchParams.set("utm_medium", "browser_game");
         steamUrl.searchParams.set("utm_content", "pc_handoff");
       }
@@ -452,7 +468,13 @@
     }
 
     async function handOffInvite() {
-      const url = inviteUrl(selectedPlan());
+      const plan = selectedPlan();
+      const target = new URL(inviteUrl(plan));
+      if (inviteSource === "cart_run_pc" && plan.mode === "cart" && !plan.date) {
+        target.searchParams.set("via", "cart_run_pc");
+        if (cartSource !== "cart_run") target.searchParams.set("publisher", cartSource);
+      }
+      const url = target.href;
       if (canShare) {
         try {
           await navigator.share({ title: "The Salt Mine 3 invite", url });

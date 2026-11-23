@@ -43,7 +43,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "WinGet settings failed ($LASTEXITCODE)." }
           & $winget validate --manifest $manifest
           if ($LASTEXITCODE -ne 0) { throw "WinGet validation failed ($LASTEXITCODE)." }
-          & $winget install --manifest $manifest --scope user --silent --source winget --accept-source-agreements --disable-interactivity
+          & $winget install --manifest $manifest --scope user --silent --dependency-source winget --accept-source-agreements --disable-interactivity
           if ($LASTEXITCODE -ne 0) { throw "WinGet installation failed ($LASTEXITCODE)." }
           $installed = Get-ItemProperty -LiteralPath $packageKey
           if ($installed.DisplayVersion -ne '0.79.0.7' -or $installed.Publisher -ne 'Avoraz' -or $installed.DisplayName -ne 'The Salt Mine 3') {

@@ -7,7 +7,7 @@ permissions:
 jobs:
   install:
     runs-on: windows-2025
-    timeout-minutes: 18
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -43,8 +43,32 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "WinGet settings failed ($LASTEXITCODE)." }
           & $winget validate --manifest $manifest
           if ($LASTEXITCODE -ne 0) { throw "WinGet validation failed ($LASTEXITCODE)." }
-          & $winget install --manifest $manifest --scope user --silent --dependency-source winget --accept-source-agreements --disable-interactivity
-          if ($LASTEXITCODE -ne 0) { throw "WinGet installation failed ($LASTEXITCODE)." }
+          $arguments = "install --manifest `"$manifest`" --scope user --silent --dependency-source winget --accept-source-agreements --disable-interactivity --verbose-logs"
+          $installLog = Join-Path $env:RUNNER_TEMP 'winget-install.txt'
+          $installError = Join-Path $env:RUNNER_TEMP 'winget-install-error.txt'
+          $install = Start-Process -FilePath $winget -ArgumentList $arguments -PassThru -WindowStyle Hidden -RedirectStandardOutput $installLog -RedirectStandardError $installError
+          $deadline = (Get-Date).AddMinutes(5)
+          do {
+            if ($install.WaitForExit(30000)) { break }
+            $installedKey = Test-Path -LiteralPath $packageKey
+            $launcher = Test-Path -LiteralPath (Join-Path $target 'TheSaltMine3.exe')
+            $stages = @(Get-ChildItem -LiteralPath $target -Directory -Filter '.tsm-stage-*' -Force -ErrorAction SilentlyContinue)
+            $processes = Get-Process -Name '*SaltMine*','InstallGuard','smartscreen','consent' -ErrorAction SilentlyContinue
+            $processes | Select-Object ProcessName, CPU, MainWindowTitle | Format-Table | Out-Host
+            Write-Output "Install progress: registration=$installedKey launcher=$launcher stagingFolders=$($stages.Count)"
+          } while ((Get-Date) -lt $deadline)
+          $safeLines = Get-Content -LiteralPath $installLog | Select-String -Pattern 'Successfully verified installer hash|Starting package install|Successfully installed|Failed when|Installation cancelled'
+          $safeLines | ForEach-Object { Write-Output $_.Line.Trim() }
+          if (!$install.HasExited) {
+            $diagnosticFolder = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+            $log = Get-ChildItem -LiteralPath $diagnosticFolder -Filter '*.log' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            if ($log) {
+              $details = Get-Content -LiteralPath $log.FullName -Tail 60
+              Write-Output "WinGet diagnostics: silent NSIS switch recorded=$([bool]($details -match '/S\b')); shell execution recorded=$([bool]($details -match 'ShellExecute')); elevation message recorded=$([bool]($details -match 'elevat'))"
+            }
+            throw 'WinGet did not return within the diagnostic window on this runner.'
+          }
+          if ($install.ExitCode -ne 0) { throw "WinGet installation failed ($($install.ExitCode))." }
           $installed = Get-ItemProperty -LiteralPath $packageKey
           if ($installed.DisplayVersion -ne '0.79.0.7' -or $installed.Publisher -ne 'Avoraz' -or $installed.DisplayName -ne 'The Salt Mine 3') {
             throw 'The installed registration differs from the release manifest.'

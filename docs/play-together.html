@@ -101,7 +101,8 @@
     #group-instructions ol, #group-instructions ul { margin: .8rem 0 1rem; padding-inline-start: 1.35rem; color: var(--quiet); font-size: .9rem; }
     #group-instructions li + li { margin-top: .52rem; }
     #watchbadge { margin-block: 1rem; border-block: 1px solid var(--line); scroll-margin-block: 1rem; }
-    #watchbadge > summary, #with-friends > summary { padding: .75rem 0; cursor: pointer; color: var(--gold); font-weight: 700; }
+    #watchbadge > summary, #with-friends > summary, #cart-preview > summary { padding: .75rem 0; cursor: pointer; color: var(--gold); font-weight: 700; }
+    #cart-preview video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #10151a; border-radius: .4rem; }
     #watchbadge .orchard-map { display: block; width: 100%; max-width: 37rem; height: auto; border-radius: .4rem; }
     .download { color: var(--ink); background: transparent; border-color: #63727f; }
     .download:hover { color: #17191c; }
@@ -228,6 +229,15 @@
           <p class="hint" id="remote-install" hidden><strong>Already joined?</strong> With Steam running on your Windows PC, <a href="https://steamcommunity.com/my/games/?tab=all" target="_blank" rel="noopener">open your Steam library</a> here with the same account. Search for <strong>The Salt Mine 3 Playtest</strong> and select <strong>Install</strong>. If your PC is offline, the Playtest stays in your library for later.</p>
           <p class="hint" id="friend-steam-tip"><strong>Friend sent you a Steam invite?</strong> Accept it from Steam’s notification bell or the store page. After joining, you’ll find <strong>The Salt Mine 3 Playtest</strong> in your Steam Library on Windows.</p>
           <span class="hint" id="library-feedback" role="status"></span>
+          <details id="cart-preview">
+            <summary>Watch Push the Cart · 15 seconds</summary>
+            <video width="1280" height="720" controls playsinline preload="none" poster="media/escort-the-salt.webp" aria-label="Escort the Salt gameplay preview" aria-describedby="cart-preview-credit">
+              <source src="media/escort-the-salt.mp4" type="video/mp4">
+              <track kind="captions" src="media/escort-the-salt.en.vtt" srclang="en" label="English">
+              <a href="media/escort-the-salt.mp4">Open the gameplay clip</a>
+            </video>
+            <p class="hint" id="cart-preview-credit">Sylwen escorts the cart in a Steam match with bots. Vessa’s keg and the delivery are from a scripted development build.</p>
+          </details>
         </div>
       </div>
       <noscript><p class="hint">Use the download link and share your plan with a friend.</p></noscript>
@@ -262,6 +272,9 @@
     const groupSteps = document.getElementById("group-steps");
     const groupInstructions = document.getElementById("group-instructions");
     const cartRoleTip = document.getElementById("cart-role-tip");
+    const cartPreview = document.getElementById("cart-preview");
+    const cartVideo = cartPreview.querySelector("video");
+    cartPreview.addEventListener("toggle", () => { if (!cartPreview.open) cartVideo.pause(); });
     const battlegroundSteps = document.getElementById("battleground-steps");
     const vaultSteps = document.getElementById("vault-steps");
     const valeSteps = document.getElementById("vale-steps");
@@ -328,6 +341,7 @@
       when.value = receivedTime ? localValue(receivedTime) : "";
       const plan = render();
       showRecipientPlan(validMode && (!query.has("at") || plan.date !== null), plan.date);
+      cartPreview.open = validMode && mode === "cart" && query.getAll("step").length === 1 && query.get("step") === "gameplay";
       watchbadge.open = validMode && mode === "vale" && query.getAll("step").length === 1 && query.get("step") === "watchbadge";
       if (watchbadge.open) requestAnimationFrame(() => watchbadge.scrollIntoView({ block: "start" }));
     }
@@ -387,6 +401,8 @@
       title.textContent = modes.get(plan.mode);
       soloMode.textContent = title.textContent;
       cartRoleTip.hidden = plan.mode !== "cart";
+      cartPreview.hidden = plan.mode !== "cart";
+      if (cartPreview.hidden) cartPreview.open = false;
       const isVault = plan.mode === "vault";
       const isVale = plan.mode === "vale";
       battlegroundSteps.hidden = isVault || isVale;
@@ -408,6 +424,11 @@
         steamUrl.searchParams.set("utm_medium", "browser_game");
         steamUrl.searchParams.set("utm_content", "pc_handoff");
       }
+      if (plan.mode === "cart" && inviteSource === "showcase_clip") {
+        steamUrl.searchParams.set("utm_source", "github");
+        steamUrl.searchParams.set("utm_medium", "readme");
+        steamUrl.searchParams.set("utm_content", "cart_gameplay_clip");
+      }
       steamLink.href = steamUrl.href;
       const ended = hasEnded(plan.date);
       time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
@@ -422,6 +443,7 @@
     function planHash(plan) {
       const query = new URLSearchParams({ mode: plan.mode });
       if (plan.mode === "vale" && watchbadge.open) query.set("step", "watchbadge");
+      if (plan.mode === "cart" && cartPreview.open) query.set("step", "gameplay");
       if (plan.date) query.set("at", plan.date.toISOString());
       return "#" + query.toString();
     }

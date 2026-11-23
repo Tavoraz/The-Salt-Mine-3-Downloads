@@ -26,7 +26,7 @@ Steam and the itch app deliver their own updates. With a direct Windows installa
 **One-line description** — The Salt Mine 3 is a free Windows fantasy battler with nine heroes, three objective modes, and a group dungeon between battles.
 
 - [Official overview and first-match instructions](https://www.youtube.com/watch?v=9idgjVLPLNs)
-- [Push the Cart gameplay still](https://media.indiedb.com/images/downloads/1/322/321257/steam-26518520-hosted-match.jpg) from a v0.79 test match with AI heroes
+- [Watch Push the Cart in 15 seconds and try it with a friend](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html?via=showcase_clip#mode=cart&step=gameplay). The clip shows a Steam match with bots and a scripted development encounter. [Gameplay still from the Steam build](https://media.indiedb.com/images/downloads/1/322/321257/steam-26518520-hosted-match.jpg)
 - [Additional official screenshots](https://www.indiedb.com/games/the-salt-mine-3/images)
 - [Lantern Vault co-op preview](https://www.youtube.com/shorts/74oxkvF4zTg) from a staged three-client development session
 - [First Cart Delivery challenge](https://tavoraz.itch.io/the-salt-mine-3/devlog/1763006/v079-your-first-battleground-is-one-step-closer) for readers who want to try a match

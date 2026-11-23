@@ -1,0 +1,66 @@
+name: Check Windows package 0.79.0.7
+on:
+  push:
+    branches: [codex/test-winget-r7]
+permissions:
+  contents: read
+jobs:
+  install:
+    runs-on: windows-2025
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate, install, and remove the standalone alpha
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = (Resolve-Path 'winget/manifests/a/Avoraz/TheSaltMine3/0.79.0.7').Path
+          $packageKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\AvorazSaltMine3'
+          $target = Join-Path $env:LOCALAPPDATA 'Programs\The Salt Mine 3'
+          if ((Test-Path -LiteralPath $target) -or (Test-Path -LiteralPath $packageKey)) {
+            throw 'The runner must have a clean profile.'
+          }
+          $winget = (Get-Command winget.exe -ErrorAction SilentlyContinue).Source
+          if (!$winget) {
+            $installer = Get-AppxPackage Microsoft.DesktopAppInstaller
+            if ($installer) {
+              $winget = Join-Path $installer.InstallLocation 'winget.exe'
+            }
+          }
+          if (!$winget -or !(Test-Path -LiteralPath $winget)) {
+            Install-Module Microsoft.WinGet.Client -Scope CurrentUser -Repository PSGallery -Force
+            Repair-WinGetPackageManager -Latest
+            $winget = Join-Path (Get-AppxPackage Microsoft.DesktopAppInstaller).InstallLocation 'winget.exe'
+          }
+          & $winget --version
+          & $winget settings --enable LocalManifestFiles
+          if ($LASTEXITCODE -ne 0) { throw "WinGet settings failed ($LASTEXITCODE)." }
+          & $winget validate --manifest $manifest
+          if ($LASTEXITCODE -ne 0) { throw "WinGet validation failed ($LASTEXITCODE)." }
+          & $winget install --manifest $manifest --scope user --silent --source winget --accept-source-agreements --disable-interactivity
+          if ($LASTEXITCODE -ne 0) { throw "WinGet installation failed ($LASTEXITCODE)." }
+          $installed = Get-ItemProperty -LiteralPath $packageKey
+          if ($installed.DisplayVersion -ne '0.79.0.7' -or $installed.Publisher -ne 'Avoraz' -or $installed.DisplayName -ne 'The Salt Mine 3') {
+            throw 'The installed registration differs from the release manifest.'
+          }
+          if ([IO.Path]::GetFullPath($installed.InstallLocation) -ne [IO.Path]::GetFullPath($target)) {
+            throw 'Unexpected installation path.'
+          }
+          foreach ($relative in 'TheSaltMine3.exe','Game\SaltMine3.exe','Uninstall.exe') {
+            if (!(Test-Path -LiteralPath (Join-Path $target $relative) -PathType Leaf)) {
+              throw "The installation is missing $relative."
+            }
+          }
+          Write-Output 'Verified a clean WinGet install of Avoraz 0.79.0.7, its launcher, game and uninstaller.'
+          $process = Start-Process -FilePath (Join-Path $target 'Uninstall.exe') -ArgumentList '/S' -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -ne 0) { throw "Uninstall failed ($($process.ExitCode))." }
+          for ($attempt = 0; $attempt -lt 30; $attempt++) {
+            if (!(Test-Path -LiteralPath $packageKey) -and !(Test-Path -LiteralPath (Join-Path $target 'TheSaltMine3.exe'))) { break }
+            Start-Sleep -Seconds 2
+          }
+          if ((Test-Path -LiteralPath $packageKey) -or (Test-Path -LiteralPath (Join-Path $target 'TheSaltMine3.exe'))) {
+            throw 'Uninstall left a registration or launcher behind.'
+          }
+          Write-Output 'Verified the silent uninstaller removed the game registration and launcher.'

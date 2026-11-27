@@ -457,6 +457,7 @@
     function inviteUrl(plan) {
       const url = new URL(location.href);
       url.search = "";
+      if (inviteSource === "first_cart_match" && plan.mode === "cart") url.searchParams.set("via", "first_cart_match");
       url.hash = planHash(hasEnded(plan.date) ? { mode: plan.mode, date: null } : plan);
       return url.href;
     }
@@ -502,7 +503,6 @@
         target.searchParams.set("via", "cart_run_pc");
         if (cartSource !== "cart_run") target.searchParams.set("publisher", cartSource);
       }
-      if (inviteSource === "first_cart_match" && plan.mode === "cart") target.searchParams.set("via", "first_cart_match");
       const url = target.href;
       if (canShare) {
         try {

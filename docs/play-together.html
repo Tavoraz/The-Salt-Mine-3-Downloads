@@ -429,6 +429,12 @@
         steamUrl.searchParams.set("utm_medium", "readme");
         steamUrl.searchParams.set("utm_content", "cart_gameplay_clip");
       }
+      if (plan.mode === "cart" && inviteSource === "first_cart_match") {
+        steamUrl.searchParams.set("utm_source", "github_pages");
+        steamUrl.searchParams.set("utm_medium", "friend_invite");
+        steamUrl.searchParams.set("utm_campaign", "first_cart_match");
+        steamUrl.searchParams.set("utm_content", "shared_queue");
+      }
       steamLink.href = steamUrl.href;
       const ended = hasEnded(plan.date);
       time.textContent = plan.date ? formatter.format(plan.date) + (ended ? " · ended" : " · local time") : "Whenever you’re ready";
@@ -496,6 +502,7 @@
         target.searchParams.set("via", "cart_run_pc");
         if (cartSource !== "cart_run") target.searchParams.set("publisher", cartSource);
       }
+      if (inviteSource === "first_cart_match" && plan.mode === "cart") target.searchParams.set("via", "first_cart_match");
       const url = target.href;
       if (canShare) {
         try {

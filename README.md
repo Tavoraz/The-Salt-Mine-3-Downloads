@@ -15,7 +15,7 @@ Steam and the itch app deliver their own updates. With a direct Windows installa
 
 ## Play, bring a friend, or follow along
 
-- [Watch Capture the Salt and the Lantern Vault](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/playtest-clips.html) — two short gameplay clips with direct links to the free Steam Playtest.
+- [Watch a Lantern Vault rescue](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/playtest-clips.html#bring-a-friend-to-lantern-vault) — bring a friend to the free Steam Playtest. The gallery also has Capture the Salt gameplay.
 - [Play Cart Run in your browser](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/) — push the cart for up to 30 seconds, then challenge a friend to beat your distance or delivery time. [Watch a short, scripted run](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/media/cart-run-30-second-challenge.mp4).
 - [Watch Vessa clear the track](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/#watch-cart) in an 8.7-second development preview, then try Push the Cart in the free Windows Playtest.
 - [Plan a match with friends](https://tavoraz.github.io/The-Salt-Mine-3-Downloads/play-together.html) — pick a mode, share an optional local time, and find the steps to group up in Saltwake.

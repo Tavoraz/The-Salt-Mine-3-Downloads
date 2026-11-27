@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Salt Mine 3 gameplay clips | Free Steam Playtest</title>
-  <meta name="description" content="Watch two short plays from The Salt Mine 3, then join the free Steam Playtest for Windows with friends.">
+  <meta name="description" content="Watch a Lantern Vault rescue and other short plays from The Salt Mine 3, then try the free Steam Playtest for Windows with friends.">
   <link rel="canonical" href="https://tavoraz.github.io/The-Salt-Mine-3-Downloads/playtest-clips.html">
   <meta property="og:title" content="The Salt Mine 3 | Watch a play, then try it with friends">
   <meta property="og:description" content="Get the crystal home or pull your squad through a boss fight. Free Windows Playtest on Steam.">
-  <meta property="og:image" content="https://tavoraz.github.io/The-Salt-Mine-3-Downloads/media/get-the-salt-home.jpg">
+  <meta property="og:image" content="https://tavoraz.github.io/The-Salt-Mine-3-Downloads/media/bring-a-friend-to-lantern-vault.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <style>
     :root { color-scheme: dark; --ground: #0d151a; --panel: #172229; --text: #f5eddd; --subtle: #c9d2d2; --accent: #edc786; }
@@ -30,12 +30,13 @@
     .action:hover { background: #f8dba3; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem; }
     article { border: 1px solid #435158; border-radius: .55rem; overflow: hidden; background: var(--panel); }
+    .featured { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: center; }
     video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #0a1015; }
     .copy { padding: 1.25rem; }
     .mode { display: block; margin-bottom: .4rem; color: var(--accent); font-size: .85rem; font-weight: 650; }
     .notice { color: var(--subtle); font-size: .89rem; }
     footer { padding: 1.75rem 0 2.5rem; color: var(--subtle); font-size: .88rem; }
-    @media (max-width: 45rem) { .grid { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 45rem) { .grid, .featured { grid-template-columns: minmax(0, 1fr); } }
   </style>
 </head>
 <body>
@@ -50,6 +51,22 @@
     </div>
   </header>
   <main class="wrap grid" aria-label="Gameplay clips">
+    <article id="bring-a-friend-to-lantern-vault" class="featured" aria-labelledby="rescue-title">
+      <video controls playsinline preload="none" width="1280" height="720" poster="media/bring-a-friend-to-lantern-vault.jpg" aria-labelledby="rescue-title" aria-describedby="rescue-disclosure">
+        <source src="media/bring-a-friend-to-lantern-vault.mp4" type="video/mp4">
+        <a href="media/bring-a-friend-to-lantern-vault.mp4">Open the 12-second Lantern Vault rescue</a>
+      </video>
+      <div class="copy">
+        <span class="mode">Lantern Vault · 1–3 players</span>
+        <h2 id="rescue-title">Bring a friend to Lantern Vault</h2>
+        <p>Get your ally back on their feet, then regroup for the boss’s next cast. To try it together, meet at the lantern arch in Saltwake.</p>
+        <div class="actions">
+          <a class="action" href="https://store.steampowered.com/app/5578970/The_Salt_Mine_3/?utm_source=github_pages&amp;utm_medium=video&amp;utm_campaign=playtest_clips&amp;utm_content=lantern_vault_revive#game_area_purchase">Join on Steam</a>
+          <a class="secondary" href="play-together.html#mode=vault">Plan a run with friends</a>
+        </div>
+        <p class="notice" id="rescue-disclosure">Staged October prototype gameplay with three game clients and fictional player names. Original Avoraz score.</p>
+      </div>
+    </article>
     <article id="get-the-salt-home" aria-labelledby="salt-title">
       <video controls playsinline preload="none" width="1280" height="720" poster="media/get-the-salt-home.jpg" aria-labelledby="salt-title" aria-describedby="salt-disclosure">
         <source src="media/get-the-salt-home.mp4" type="video/mp4">

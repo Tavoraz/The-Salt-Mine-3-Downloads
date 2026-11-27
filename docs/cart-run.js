@@ -7,7 +7,7 @@ const msg = (english, espanol) => spanish ? espanol : english;
 // Keep attribution at the publisher level. A shared score starts a fresh visit.
 const listingSource = pageUrl.searchParams.get('utm_source') === 'just1more.games' ? 'just1more' : null;
 const portal = pageUrl.searchParams.get('via') || listingSource;
-const publishers = ['antgames', 'elenagames', 'game16', 'gogashare', 'just1more', 'ottersplay', 'playgroundarcade', 'vibegamer'];
+const publishers = ['antgames', 'elenagames', 'game16', 'gogashare', 'just1more', 'openplayerone', 'ottersplay', 'playgroundarcade', 'vibegamer'];
 const embedPublishers = new Map([
   ['https://slowden.com', 'slowden'],
   ['https://www.slowden.com', 'slowden'],

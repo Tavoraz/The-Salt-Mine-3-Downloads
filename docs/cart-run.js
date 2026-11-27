@@ -6,7 +6,7 @@ const spanish = requestedLanguage === 'es' || (requestedLanguage !== 'en' && /^e
 const msg = (english, espanol) => spanish ? espanol : english;
 // Keep attribution at the publisher level. A shared score starts a fresh visit.
 const portal = pageUrl.searchParams.get('via');
-const publishers = ['antgames', 'elenagames', 'game16', 'gogashare', 'ottersplay'];
+const publishers = ['antgames', 'elenagames', 'game16', 'gogashare', 'ottersplay', 'vibegamer'];
 const embedPublishers = new Map([
   ['https://slowden.com', 'slowden'],
   ['https://www.slowden.com', 'slowden'],
